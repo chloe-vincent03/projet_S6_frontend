@@ -1,10 +1,11 @@
 <template>
   <div ref="containerRef" class="relative w-full h-full overflow-hidden cursor-crosshair touch-none">
-    <!-- Ink Layer (Background - B&W) -->
+    <!-- Ink Layer (Background - B&W if same image) -->
     <img 
       :src="inkLayer" 
       alt="Background" 
-      class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-filter duration-300"
+      :class="{ 'grayscale': inkLayer === watercolorLayer }"
     />
 
     <!-- Canvas Layer (Drawing Surface) -->

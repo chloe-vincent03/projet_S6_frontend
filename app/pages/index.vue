@@ -31,7 +31,7 @@
          <!-- Instructions / Progress Overlay -->
          <div class="absolute bottom-12 left-0 w-full text-center pointer-events-none z-20 flex flex-col items-center gap-4 transition-opacity duration-500" :class="{ 'opacity-0': isUnlocked }">
             <div class="px-6 py-3 bg-black/40 backdrop-blur-md rounded-full text-white/90 font-medium text-lg shadow-sm border border-white/10">
-               ✨ Coloriez pour découvrir
+               ✨ Coloriez pour découvrir ✨
             </div>
          </div>
          
@@ -47,8 +47,8 @@
        <!-- CONTENT SECTION (Scroll to see) -->
        <section class="container mx-auto px-6 py-24 max-w-4xl" id="content-start">
           <article class="flex flex-col gap-8 text-center">
-             <span class="text-sm font-bold uppercase tracking-widest text-emerald-600">Chapitre 1</span>
-             <h2 class="text-5xl font-serif text-stone-900 leading-tight">{{ firstPlace.title }}</h2>
+             <span class="text-sm font-bold uppercase tracking-widest text-stone-500">Chapitre 1</span>
+             <h2 class="text-5xl font-serif text-[#2C3E50] leading-tight">{{ firstPlace.title }}</h2>
              
              <div class="w-24 h-1 bg-stone-200 mx-auto my-4"></div>
              
@@ -57,10 +57,7 @@
              </p>
           </article>
 
-          <!-- Placeholder for following content -->
-          <div class="mt-32 p-12 bg-white rounded-2xl shadow-sm border border-stone-100 text-center text-stone-400">
-             (La suite de la visite arrive bientôt...)
-          </div>
+          <!-- Placeholder removed -->
        </section>
     </div>
   </div>
