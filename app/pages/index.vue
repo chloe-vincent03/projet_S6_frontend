@@ -17,15 +17,24 @@
          <!-- Title Overlay -->
          <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none mix-blend-difference">
             <h1 class="text-5xl md:text-7xl font-serif font-bold text-white tracking-wider text-center px-4">
-               Réenchanter le monde
             </h1>
          </div>
 
-         <ScratchReveal 
-           :inkLayer="firstPlace.inkLayer" 
-           :watercolorLayer="firstPlace.watercolorLayer" 
-           class="w-full h-full"
-           @complete="handleUnlock"
+
+
+         <div v-if="!isUnlocked" class="w-full h-full relative z-10">
+           <ScratchReveal 
+             :inkLayer="firstPlace.inkLayer" 
+             :watercolorLayer="firstPlace.watercolorLayer" 
+             class="w-full h-full"
+             @complete="handleUnlock"
+           />
+         </div>
+         <img 
+           v-else
+           :src="firstPlace.watercolorLayer" 
+           alt="Révélé"
+           class="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000 ease-in-out"
          />
          
          <!-- Instructions / Progress Overlay -->
@@ -57,16 +66,44 @@
              </p>
           </article>
 
-          <!-- Placeholder removed -->
+          <!-- MAP LINK SECTION -->
+           <div class="mt-24 mb-12 p-8 bg-white/80 backdrop-blur rounded-2xl shadow-sm border border-stone-100 text-center max-w-2xl mx-auto">
+             <h3 class="text-2xl font-serif text-[#2C3E50] font-bold mb-4">Explorez le monde invisible</h3>
+             <p class="text-stone-600 mb-8 leading-relaxed">
+               Vous avez révélé un fragment de la ville. D'autres lieux mystérieux attendent d'être découverts...
+             </p>
+             
+             <div v-if="tokenCookie" class="flex flex-wrap gap-4 justify-center">
+                <NuxtLink to="/map" class="inline-flex items-center gap-2 px-8 py-4 bg-[#2C3E50] text-white rounded-full font-bold shadow-lg hover:bg-[#34495E] hover:scale-105 transition-all">
+                  <span>Accéder à la Carte</span>
+                </NuxtLink>
+                <NuxtLink to="/profile" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#2C3E50] border border-[#2C3E50] rounded-full font-bold shadow-lg hover:bg-stone-50 hover:scale-105 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Mon Profil</span>
+                </NuxtLink>
+             </div>
+             <div v-else class="flex flex-col gap-4 items-center">
+                <p class="text-sm text-stone-500 italic">Connectez-vous pour accéder à la carte et sauvegarder votre progression.</p>
+                <div class="flex gap-4">
+                  <NuxtLink to="/login" class="px-6 py-2 border border-[#2C3E50] text-[#2C3E50] rounded-full font-bold hover:bg-stone-50 transition-colors">
+                    Connexion
+                  </NuxtLink>
+                  <NuxtLink to="/register" class="px-6 py-2 bg-[#2C3E50] text-white rounded-full font-bold hover:bg-[#34495E] transition-colors">
+                    Inscription
+                  </NuxtLink>
+                </div>
+             </div>
+           </div>
        </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const config = useRuntimeConfig()
+const tokenCookie = useCookie('auth_token')
 const { data: places, pending, error } = await useFetch(`${config.public.apiBase}/places`)
 
 // Use the first place for the Hero
@@ -75,10 +112,62 @@ const firstPlace = computed(() => places.value?.[0])
 // Scroll Lock Logic
 const isUnlocked = ref(false)
 
-const handleUnlock = () => {
+const checkProgress = async () => {
+  if (tokenCookie.value && firstPlace.value) {
+    try {
+      const userRes = await fetch(`${config.public.apiBase}/user/profile`, {
+        headers: {
+          'Authorization': `Bearer ${tokenCookie.value}`
+        }
+      })
+      if (userRes.ok) {
+        const user = await userRes.json()
+        const isDiscovered = user.progress?.some(p => p.placeId === firstPlace.value._id && p.isCompleted)
+        
+        if (isDiscovered) {
+          console.log('Place already discovered, auto-unlocking.')
+          isUnlocked.value = true
+        }
+      }
+    } catch (err) {
+      console.error('Error checking progress:', err)
+    }
+  }
+}
+
+onMounted(() => {
+  checkProgress()
+})
+
+const handleUnlock = async () => {
   if (!isUnlocked.value) {
     isUnlocked.value = true
-    // Optional: Smooth scroll nudge to hint content?
+    
+    // Si connecté, on sauvegarde la progression
+    if (tokenCookie.value && firstPlace.value) {
+      console.log('Attempting to save progress for place:', firstPlace.value._id)
+      try {
+        const response = await fetch(`${config.public.apiBase}/user/progress`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenCookie.value}`
+          },
+          body: JSON.stringify({ placeId: firstPlace.value._id })
+        })
+
+        if (response.ok) {
+           console.log('Progress saved successfully!')
+           // Optional: You could use a toast library here if available, for now console + simple alert if critical
+        } else {
+           console.error('Failed to save progress:', await response.text())
+        }
+      } catch (err) {
+        console.error('Erreur sauvegarde progression', err)
+      }
+    } else {
+        console.warn('User not logged in, progress will not be saved permanently.')
+    }
   }
 }
 </script>
