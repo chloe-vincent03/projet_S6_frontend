@@ -45,10 +45,45 @@
           </div>
         </div>
 
+        <!-- Totem Collection Section -->
+        <div class="mb-8">
+           <h3 class="text-[#2C3E50] font-serif font-bold text-lg mb-4 flex items-center gap-2">
+             Mes Totems
+           </h3>
+           
+           <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100">
+              <div class="grid grid-cols-2 gap-4">
+                 <!-- Totem Item -->
+                 <div class="flex flex-col items-center">
+                    <div class="w-full aspect-[2/3] bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden relative group">
+                       <img 
+                         src="https://res.cloudinary.com/dveki8qer/image/upload/v1768909823/totem_ezvedw.svg" 
+                         alt="Totem de la Ville" 
+                         class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-110"
+                       />
+                       <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                 </div>
+                 
+                 <!-- Placeholder for future totems -->
+                 <div class="flex flex-col items-center opacity-50">
+                    <div class="w-full aspect-[2/3] bg-white/50 rounded-xl border-2 border-dashed border-stone-200 flex items-center justify-center">
+                       <span class="text-2xl text-stone-300">?</span>
+                    </div>
+                    <span class="text-xs font-bold text-stone-400 mt-2">À découvrir</span>
+                 </div>
+              </div>
+           </div>
+        </div>
+
         <!-- Actions -->
         <div class="space-y-4">
           <NuxtLink to="/map" class="block w-full py-4 bg-[#2C3E50] text-white text-center rounded-xl font-bold hover:bg-[#34495E] hover:scale-[1.02] transition-all shadow-lg">
             Accéder à la Carte
+          </NuxtLink>
+
+          <NuxtLink to="/grimoire" class="block w-full py-4 border-2 border-[#2C3E50] text-[#2C3E50] text-center rounded-xl font-bold hover:bg-stone-50 hover:scale-[1.02] transition-all shadow-sm">
+            Ouvrir le Grimoire
           </NuxtLink>
 
           <button @click="logout" class="block w-full py-4 border border-red-200 text-red-500 rounded-xl font-bold hover:bg-red-50 transition-colors">
