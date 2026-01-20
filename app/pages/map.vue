@@ -43,21 +43,12 @@ const mapInstance = ref<any>(null) // Store map instance
 
 // Hardcoded coordinates for the map (2000x1500) based on place order
 // Adjusted to likely street positions
-const COORDINATES_MAP: Record<number, {x: number, y: number}> = {
-  1: { x: 980, y: 820 },  // Boulangerie - Central street
-  2: { x: 1450, y: 550 }, // Passage - Top right street
-  3: { x: 450, y: 1150 }, // Librairie - Bottom left intersection
-  4: { x: 1650, y: 1250 }, // Kiosque - Bottom right square
-  5: { x: 350, y: 350 },   // Puzzle - Top left path
-  6: { x: 1000, y: 650 },  // Rotate - Cafe (Moved up from 250)
-}
-
-const getPlaceCoordinates = (place: any) => {
+const getPlaceCoordinates = (place: Place) => {
   if (place.coordinates && place.coordinates.x && place.coordinates.y) {
     return place.coordinates
   }
-  // Fallback using order
-  return COORDINATES_MAP[place.order] || { x: 1000, y: 750 }
+  // Default fallback if missing (should not happen if DB is correct)
+  return { x: 1000, y: 750 }
 }
 
 const flyToPlace = (place: Place) => {

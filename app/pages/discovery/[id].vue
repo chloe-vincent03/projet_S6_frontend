@@ -13,19 +13,33 @@
     <!-- Main Hero / Mechanic Interface -->
     <div v-else class="relative w-full h-screen sticky top-0 z-0 bg-black">
       
-      <!-- Dynamic Mechanic Component -->
+      <!-- Dynamic Mechanic Component (Only if NOT completed) -->
       <component 
+        v-if="!isCompleted"
         :is="currentMechanic"
         :image="place.watercolorLayer"
         :title="place.title"
-        :initial-completed="isCompleted"
+        :initial-completed="false"
         @complete="completeDiscovery"
       />
 
-      <!-- Scroll Indicator (Appears after completion) -->
-      <div class="absolute bottom-8 left-0 right-0 z-30 flex justify-center pointer-events-none transition-all duration-1000 delay-500"
-           :class="isCompleted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'">
-           <div class="animate-bounce p-3 bg-white/20 backdrop-blur-md rounded-full text-white cursor-pointer pointer-events-auto shadow-lg border border-white/10" @click="scrollToContent">
+      <!-- Static Image View (If Already Completed) -->
+      <div v-else class="relative w-full h-full">
+         <img 
+          :src="place.watercolorLayer" 
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-black/20 pointer-events-none"></div>
+        
+        <!-- Title Overlay -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+           <h1 class="text-white font-serif text-5xl md:text-7xl font-bold text-shadow-lg tracking-wider animate-fade-in-up">{{ place.title }}</h1>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator (Always visible when completed) -->
+      <div v-if="isCompleted" class="absolute bottom-8 left-0 right-0 z-30 flex justify-center animate-bounce">
+           <div class="p-3 bg-white/20 backdrop-blur-md rounded-full text-white cursor-pointer shadow-lg border border-white/10 hover:bg-white/30 transition-colors" @click="scrollToContent">
              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
            </div>
       </div>
@@ -59,9 +73,13 @@ import MechanicFocus from '~/components/mechanics/MechanicFocus.vue'
 import MechanicFlashlight from '~/components/mechanics/MechanicFlashlight.vue'
 
 import MechanicPuzzle from '~/components/mechanics/MechanicPuzzle.vue'
-import MechanicRotate from '~/components/mechanics/MechanicRotate.vue'
 
+import MechanicRotate from '~/components/mechanics/MechanicRotate.vue'
 import MechanicMelody from '~/components/mechanics/MechanicMelody.vue'
+
+import MechanicDifference from '~/components/mechanics/MechanicDifference.vue'
+import MechanicSequence from '~/components/mechanics/MechanicSequence.vue'
+import MechanicTuning from '~/components/mechanics/MechanicTuning.vue'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -101,6 +119,12 @@ const currentMechanic = computed(() => {
       return MechanicPuzzle
     case 6:
       return MechanicRotate
+    case 7:
+      return MechanicDifference
+    case 8:
+      return MechanicSequence
+    case 9:
+      return MechanicTuning
     default:
       return MechanicFocus
   }

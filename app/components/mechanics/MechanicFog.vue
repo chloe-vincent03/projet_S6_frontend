@@ -42,6 +42,7 @@ import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 const props = defineProps<{
   image: string
   title: string
+  initialCompleted?: boolean
 }>()
 
 const emit = defineEmits(['complete'])
@@ -147,7 +148,8 @@ const checkProgress = () => {
 
       for (let i = 3; i < data.length; i += 4 * step) {
         checkedPixels++
-        if (data[i] < 128) { // Alpha less than 50%
+        const alpha = data[i]
+        if (alpha !== undefined && alpha < 128) { // Alpha less than 50%
           clearPixels++
         }
       }
@@ -192,7 +194,13 @@ const handleTouch = (e: TouchEvent) => {
 }
 
 onMounted(() => {
-  initCanvas()
+  if (props.initialCompleted) {
+    isCompleted.value = true
+    progress.value = 100
+    emit('complete')
+  } else {
+    initCanvas()
+  }
 })
 
 onBeforeUnmount(() => {

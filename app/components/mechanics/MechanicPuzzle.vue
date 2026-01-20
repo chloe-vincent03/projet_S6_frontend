@@ -54,6 +54,7 @@ import { ref, onMounted } from 'vue'
 const props = defineProps<{
   image: string
   title: string
+  initialCompleted?: boolean
 }>()
 
 const emit = defineEmits(['complete'])
@@ -132,7 +133,17 @@ const complete = () => {
 }
 
 onMounted(() => {
-  initPuzzle()
+  if (props.initialCompleted) {
+    isCompleted.value = true
+    // Create solved tiles directly
+    tiles.value = Array.from({ length: 9 }, (_, i) => ({
+      id: i,
+      correctPos: i
+    }))
+    emit('complete')
+  } else {
+    initPuzzle()
+  }
 })
 </script>
 

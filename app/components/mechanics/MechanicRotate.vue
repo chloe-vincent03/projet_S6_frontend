@@ -57,6 +57,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const props = defineProps<{
   image: string
   title: string
+  initialCompleted?: boolean
 }>()
 
 const emit = defineEmits(['complete'])
@@ -211,6 +212,14 @@ const checkCompletion = () => {
     emit('complete')
   }
 }
+
+onMounted(() => {
+  if (props.initialCompleted) {
+    isCompleted.value = true
+    rings.value.forEach(r => r.currentAngle = 0)
+    emit('complete')
+  }
+})
 
 </script>
 

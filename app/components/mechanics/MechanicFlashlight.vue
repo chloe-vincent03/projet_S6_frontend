@@ -52,6 +52,7 @@ import { ref, computed, onMounted } from 'vue'
 const props = defineProps<{
   image: string
   title: string
+  initialCompleted?: boolean
 }>()
 
 const emit = defineEmits(['complete'])
@@ -115,6 +116,15 @@ const checkCompletion = () => {
     emit('complete')
   }
 }
+
+onMounted(() => {
+  if (props.initialCompleted) {
+    // If already completed, set state to full visited
+    visitedCount.value = TOTAL_CELLS_X * TOTAL_CELLS_Y
+    isCompleted.value = true
+    emit('complete')
+  }
+})
 </script>
 
 <style scoped>

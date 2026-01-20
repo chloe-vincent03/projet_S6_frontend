@@ -81,9 +81,14 @@ const unlockedCount = computed(() => {
   return user.value.progress.filter((p: any) => p.isCompleted).length
 })
 
-const totalPlaces = 6 // Hardcoded or could be fetched
+// Fetch all places to get count
+const { data: places } = await useFetch<any[]>(`${config.public.apiBase}/places`)
+
+const totalPlaces = computed(() => places.value?.length || 0)
+
 const progressPercentage = computed(() => {
-  return Math.round((unlockedCount.value / totalPlaces) * 100)
+  if (totalPlaces.value === 0) return 0
+  return Math.round((unlockedCount.value / totalPlaces.value) * 100)
 })
 
 const logout = () => {

@@ -42,6 +42,10 @@
             <div class="px-6 py-3 bg-black/40 backdrop-blur-md rounded-full text-white/90 font-medium text-lg shadow-sm border border-white/10">
                ✨ Coloriez pour découvrir ✨
             </div>
+            
+            <NuxtLink v-if="!tokenCookie" to="/login" class="pointer-events-auto text-white/80 text-sm hover:text-white hover:underline transition-colors font-medium shadow-black drop-shadow-md">
+              Déjà un compte ? Se connecter
+            </NuxtLink>
          </div>
          
          <!-- Scroll Indicator (Visible only when unlocked) -->

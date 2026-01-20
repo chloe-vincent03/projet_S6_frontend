@@ -70,6 +70,7 @@ import { ref, computed } from 'vue'
 const props = defineProps<{
   image: string
   title: string
+  initialCompleted?: boolean
 }>()
 
 const emit = defineEmits(['complete'])
@@ -90,6 +91,14 @@ const checkCompletion = () => {
     emit('complete')
   }
 }
+
+onMounted(() => {
+  if (props.initialCompleted) {
+    focusLevel.value = 100
+    isCompleted.value = true
+    emit('complete')
+  }
+})
 </script>
 
 <style scoped>
