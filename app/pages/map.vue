@@ -117,7 +117,27 @@ onMounted(async () => {
       // Define bounds for the image
       const bounds: LatLngBoundsExpression = [[0, 0], [MAP_HEIGHT, MAP_WIDTH]]
 
-      L.imageOverlay(MAP_IMAGE_URL, bounds).addTo(map)
+      
+      // PROGRESSIVE COLORIZATION LOGIC
+      // 0 places -> Saturation 0 (Black & White)
+      // 9 places -> Saturation 1 (Full Color)
+      // We use CSS Variables injected into the container to handle this smoothly without FOUC
+      const totalPlaces = 9
+      const discoveredCount = discoveredPlaces.value.length
+      // Cap ratio at 1 (100%)
+      const ratio = Math.min(discoveredCount / totalPlaces, 1)
+      
+      // Calculate Saturation Value: 0 -> 1
+      const saturationVal = ratio
+      
+      if (mapContainer.value) {
+        mapContainer.value.style.setProperty('--map-saturation', `${saturationVal}`)
+      }
+
+      // Add overlay with a specific class that uses the CSS variable
+      const overlay = L.imageOverlay(MAP_IMAGE_URL, bounds, {
+        className: 'map-procedure-layer'
+      }).addTo(map)
       
       map.fitBounds(bounds)
 
@@ -169,15 +189,6 @@ onMounted(async () => {
     <aside class="w-80 bg-white shadow-xl z-20 flex flex-col border-r border-stone-200">
       <!-- Header / Back -->
       <div class="p-6 border-b border-stone-100 bg-stone-50 relative">
-        <NuxtLink to="/" class="inline-flex items-center gap-2 text-[#2C3E50] font-bold hover:text-[#34495E] transition-colors mb-4">
-          ← Retour à l'accueil
-        </NuxtLink>
-        
-        <!-- Profile Link Icon (SVG) -->
-        <NuxtLink to="/profile" class="absolute top-6 right-6 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-[#2C3E50] hover:text-[#34495E]" title="Mon Profil">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </NuxtLink>
-
         <h1 class="text-xl font-serif text-[#2C3E50] font-bold">Mes Découvertes</h1>
         <p class="text-xs text-stone-500 mt-1" v-if="!isLoading">{{ discoveredPlaces.length }} lieux révélés</p>
         
@@ -247,5 +258,19 @@ onMounted(async () => {
 }
 :deep(.leaflet-popup-content) {
   margin: 1rem;
+}
+</style>
+
+<!-- Global styles for dynamic Leaflet elements -->
+<style>
+/* 
+  Target the map overlay image specifically using the class 
+  passed to L.imageOverlay options.
+  MUST be global because Leaflet moves elements around and scoped styles might miss.
+*/
+.map-procedure-layer {
+  /* Default to 0 saturation (B&W) if variable missing */
+  filter: saturate(var(--map-saturation, 0));
+  transition: filter 1.5s ease-out;
 }
 </style>

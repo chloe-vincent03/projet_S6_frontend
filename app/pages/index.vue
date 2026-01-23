@@ -73,21 +73,40 @@
           <!-- MAP / ENIGMA SECTION -->
           <div class="mt-24 mb-12 w-full max-w-4xl mx-auto flex flex-col items-center gap-12 relative z-50">
 
-            <!-- NAVIGATION BUTTONS (Always visible) -->
-            <div class="p-8 bg-white/60 backdrop-blur rounded-2xl border border-stone-100/50 text-center max-w-2xl w-full">
-              <h3 class="text-xl font-serif text-[#2C3E50] font-bold mb-4">La Ville Lente</h3>
-              <p class="text-stone-500 mb-8">Continuez votre exploration de la ville et découvrez ses secrets.</p>
-
-              <div v-if="tokenCookie" class="flex flex-wrap gap-4 justify-center">
-                <NuxtLink to="/map" class="inline-flex items-center gap-2 px-8 py-4 bg-[#2C3E50] text-white rounded-full font-bold shadow-lg hover:bg-[#34495E] hover:scale-105 transition-all">
-                  <span>Accéder à la Carte</span>
-                </NuxtLink>
-                <NuxtLink to="/profile" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#2C3E50] border border-[#2C3E50] rounded-full font-bold shadow-lg hover:bg-stone-50 hover:scale-105 transition-all">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                   <span>Mon Profil</span>
-                </NuxtLink>
+            <!-- NAVIGATION / DASHBOARD -->
+            <div class="p-8 bg-white/60 backdrop-blur rounded-3xl border border-stone-100/50 text-center max-w-4xl w-full">
+              
+              <!-- Narrative Intro -->
+              <div class="mb-10 max-w-2xl mx-auto">
+                <h3 class="text-2xl font-serif text-[#2C3E50] font-bold mb-4">La Ville Lente</h3>
+                <p class="text-stone-600 text-lg leading-relaxed">
+                  En découvrant les lieux de la ville, vous dévoilez son histoire et participez à sa création. Chaque secret révélé ajoute une pierre à l'édifice.
+                </p>
               </div>
-              <div v-else class="flex flex-col gap-4 items-center">
+
+              <!-- Action Grid -->
+              <div v-if="tokenCookie" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Card 1: Map -->
+                <NuxtLink to="/map" class="group relative overflow-hidden bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-stone-100 flex flex-col items-center justify-center gap-4 text-center h-64">
+                   <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                   <h4 class="relative z-10 text-xl font-bold text-[#2C3E50]">La Carte</h4>
+                   <p class="relative z-10 text-stone-500 text-sm">Explorez les lieux et suivez votre progression.</p>
+                   <span class="relative z-10 mt-2 px-4 py-2 bg-[#2C3E50] text-white text-xs font-bold rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">Accéder</span>
+                </NuxtLink>
+
+                <!-- Card 2: Grimoire -->
+                <NuxtLink to="/grimoire" class="group relative overflow-hidden bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-stone-100 flex flex-col items-center justify-center gap-4 text-center h-64">
+                   <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                   <h4 class="relative z-10 text-xl font-bold text-[#2C3E50]">Le Grimoire</h4>
+                   <p class="relative z-10 text-stone-500 text-sm">Résolvez les énigmes et trouvez les totems.</p>
+                   <span class="relative z-10 mt-2 px-4 py-2 bg-[#2C3E50] text-white text-xs font-bold rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">Ouvrir</span>
+                </NuxtLink>
+
+              </div>
+
+              <!-- Guest State -->
+              <div v-else class="flex flex-col gap-4 items-center mt-6">
                  <p class="text-sm text-stone-500 italic">Connectez-vous pour sauvegarder votre progression.</p>
                  <div class="flex gap-4">
                    <NuxtLink to="/login" class="px-6 py-2 border border-[#2C3E50] text-[#2C3E50] rounded-full font-bold hover:bg-stone-50 transition-colors">
@@ -98,52 +117,6 @@
                    </NuxtLink>
                  </div>
               </div>
-            </div>
-            
-            <!-- ENIGMA CARD (Visible only if NOT solved) -->
-            <div v-if="!isGrimoireUnlocked" class="w-full max-w-lg"> 
-               <div class="bg-white p-8 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] text-center">
-                  <h3 class="font-serif text-2xl text-[#2C3E50] font-bold mb-4">Le Premier Fragment</h3>
-                  
-                  <p class="text-stone-500 mb-6">Un gardien protège l'accès au Grimoire. Répondez à son énigme pour continuer.</p>
-                  
-                  <div v-if="firstEnigma">
-                    
-                    <!-- Authenticated: Show Enigma -->
-                    <div v-if="tokenCookie">
-                        <EnigmaCard 
-                          :enigmaId="firstEnigma.id"
-                          :question="firstEnigma.question"
-                          :initiallySolved="false"
-                          @unlocked="onEnigmaUnlocked"
-                        />
-                    </div>
-
-                    <!-- Not Authenticated: Show Login Prompt -->
-                    <div v-else class="py-6 px-4 bg-stone-50 rounded-xl border border-stone-200">
-                        <p class="text-stone-600 mb-4 font-medium">✨ Connectez-vous pour défier le gardien</p>
-                        <div class="flex gap-4 justify-center text-sm">
-                           <NuxtLink to="/login" class="px-4 py-2 border border-[#2C3E50] text-[#2C3E50] rounded-lg font-bold hover:bg-white transition-colors">
-                             Connexion
-                           </NuxtLink>
-                           <NuxtLink to="/register" class="px-4 py-2 bg-[#2C3E50] text-white rounded-lg font-bold hover:bg-[#34495E] transition-colors">
-                             Inscription
-                           </NuxtLink>
-                        </div>
-                    </div>
-
-                  </div>
-                  <p v-else class="text-stone-400 italic">Le gardien dort...</p>
-               </div>
-            </div>
-
-            <!-- SUCCESS SECTION (Visible only if solved) -->
-            <div v-else class="w-full max-w-lg bg-white p-8 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] text-center animate-fade-in-up">
-               <h3 class="font-serif text-2xl text-[#2C3E50] font-bold mb-4">Le Grimoire est Ouvert</h3>
-               <p class="text-stone-600 mb-8 italic">Le chemin est ouvert.</p>
-               <NuxtLink to="/grimoire" class="inline-flex items-center gap-2 px-8 py-4 bg-[#2C3E50] text-white rounded-full font-bold shadow-lg hover:bg-[#34495E] hover:scale-105 transition-all">
-                  <span>🔮 Entrer dans le Grimoire</span>
-               </NuxtLink>
             </div>
 
           </div>

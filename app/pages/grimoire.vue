@@ -4,18 +4,8 @@
     
     <!-- No Header as requested -->
     <!-- But maybe a back button? User said "pas de header", assuming they want clean look. -->
-    <div class="absolute top-6 left-6 z-50">
-      <NuxtLink to="/" class="inline-flex items-center gap-2 text-[#2C3E50] opacity-60 hover:opacity-100 transition-opacity font-bold">
-        ← Retour
-      </NuxtLink>
-    </div>
-
-    <div class="absolute top-6 right-6 z-50">
-      <NuxtLink to="/profile" class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-[#2C3E50] px-5 py-2.5 rounded-full font-bold shadow-sm border border-stone-200 hover:bg-white hover:shadow-md transition-all hover:-translate-y-0.5 group">
-        <span>Mon Profil</span>
-        <span class="opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all">👤</span> 
-      </NuxtLink>
-    </div>
+    <!-- No Header as requested -->
+    <!-- But maybe a back button? User said "pas de header", assuming they want clean look. -->
 
     <div class="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12 items-start justify-center min-h-screen">
       
