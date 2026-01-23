@@ -52,27 +52,59 @@
            </h3>
            
            <div class="bg-stone-50 rounded-2xl p-4 border border-stone-100">
-              <div class="grid grid-cols-2 gap-4">
-                 <!-- Totem Item -->
-                 <div class="flex flex-col items-center">
-                    <div class="w-full aspect-[2/3] bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden relative group">
-                       <img 
-                         src="https://res.cloudinary.com/dveki8qer/image/upload/v1768909823/totem_ezvedw.svg" 
-                         alt="Totem de la Ville" 
-                         class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-110"
-                       />
-                       <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                 </div>
-                 
-                 <!-- Placeholder for future totems -->
-                 <div class="flex flex-col items-center opacity-50">
-                    <div class="w-full aspect-[2/3] bg-white/50 rounded-xl border-2 border-dashed border-stone-200 flex items-center justify-center">
-                       <span class="text-2xl text-stone-300">?</span>
-                    </div>
-                    <span class="text-xs font-bold text-stone-400 mt-2">À découvrir</span>
-                 </div>
-              </div>
+               <!-- Carousel Container -->
+               <div class="relative w-full aspect-[2/3] bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group">
+                  
+                  <!-- Slides -->
+                  <div v-if="completedTotems.length > 0" class="relative w-full h-full">
+                      <Transition name="fade" mode="out-in">
+                          <div :key="currentSlide" class="w-full h-full relative flex flex-col items-center justify-center p-4 animate-fade-in">
+                                <img 
+                                  :src="completedTotems[currentSlide].image" 
+                                  :alt="completedTotems[currentSlide].name" 
+                                  class="w-full h-full object-contain p-4 drop-shadow-xl"
+                                />
+                                <div class="absolute bottom-4 bg-white/90 px-4 py-2 rounded-full shadow-sm">
+                                     <span class="text-sm font-bold text-stone-600 font-serif">{{ completedTotems[currentSlide].name }}</span>
+                                </div>
+                          </div>
+                      </Transition>
+
+                      <!-- Controls -->
+                      <button 
+                        v-if="completedTotems.length > 1"
+                        @click="prevSlide" 
+                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow text-stone-600 hover:text-stone-900 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                         ❮
+                      </button>
+                      
+                      <button 
+                        v-if="completedTotems.length > 1"
+                        @click="nextSlide" 
+                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow text-stone-600 hover:text-stone-900 transition-all opacity-0 group-hover:opacity-100"
+                      >
+                         ❯
+                      </button>
+
+                      <!-- Indicators -->
+                      <div v-if="completedTotems.length > 1" class="absolute bottom-1 w-full flex justify-center gap-2 pb-2">
+                          <button 
+                            v-for="(_, index) in completedTotems" 
+                            :key="index"
+                            @click="currentSlide = index"
+                            class="w-2 h-2 rounded-full transition-all"
+                            :class="currentSlide === index ? 'bg-stone-600 w-4' : 'bg-stone-300 hover:bg-stone-400'"
+                          ></button>
+                      </div>
+                  </div>
+
+                  <!-- Empty State -->
+                  <div v-else class="w-full h-full flex flex-col items-center justify-center text-center p-6 text-stone-400">
+                     <div class="text-4xl mb-2 opacity-30">🔮</div>
+                     <p class="italic text-sm">Aucun totem complété pour l'instant.</p>
+                  </div>
+               </div>
            </div>
         </div>
 
@@ -102,6 +134,7 @@ import { ref, computed } from 'vue'
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
 const router = useRouter()
+const { getTotemMetadata } = useTotems()
 
 // Fetch user profile
 const { data: user, pending, error } = await useFetch<any>(`${config.public.apiBase}/user/profile`, {
@@ -109,6 +142,9 @@ const { data: user, pending, error } = await useFetch<any>(`${config.public.apiB
     'Authorization': `Bearer ${tokenCookie.value}`
   }
 })
+
+// Fetch enigmas to determine totem structure
+const { data: enigmas } = await useFetch<any[]>(`${config.public.apiBase}/enigmas`)
 
 // Computed Stats
 const unlockedCount = computed(() => {
@@ -124,6 +160,61 @@ const totalPlaces = computed(() => places.value?.length || 0)
 const progressPercentage = computed(() => {
   if (totalPlaces.value === 0) return 0
   return Math.round((unlockedCount.value / totalPlaces.value) * 100)
+})
+
+const currentSlide = ref(0) // State for carousel
+
+const nextSlide = () => {
+    if (currentSlide.value < completedTotems.value.length - 1) {
+        currentSlide.value++
+    } else {
+        currentSlide.value = 0 // Loop back
+    }
+}
+
+const prevSlide = () => {
+    if (currentSlide.value > 0) {
+        currentSlide.value--
+    } else {
+        currentSlide.value = completedTotems.value.length - 1 // Loop to end
+    }
+}
+
+const completedTotems = computed(() => {
+    if (!enigmas.value || !user.value?.unlockedFragments) return []
+    
+    // Group enigmas by totem
+    const totems: Record<number, string[]> = {}
+    enigmas.value.forEach(e => {
+        const tId = e.totem_id || 1
+        if (!totems[tId]) totems[tId] = []
+        
+        // Use the fragment_id from the reward, as that's what's saved in the user profile
+        if (e.reward && e.reward.fragment_id) {
+            totems[tId].push(e.reward.fragment_id)
+        }
+    })
+
+    const completed: any[] = []
+    Object.keys(totems).forEach(tIdKey => {
+        const tId = Number(tIdKey)
+        const totemEnigmas = totems[tId] || []
+        if (totemEnigmas.length === 0) return
+
+        // Check if user has ALL fragments for this totem
+        const isComplete = totemEnigmas.every((eId: string) => 
+            user.value.unlockedFragments.some((uf: any) => {
+                // Loose comparison might be safer if IDs are mixed types
+                return String(uf.fragmentId) === String(eId)
+            })
+        )
+
+        if (isComplete) {
+            completed.push(getTotemMetadata(tId))
+        }
+    })
+    
+    return completed
 })
 
 const logout = () => {
