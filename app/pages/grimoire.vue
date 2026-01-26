@@ -1,6 +1,7 @@
 <template>
   <!-- Main Container: Light Theme -->
-  <div class="min-h-screen bg-[#f4f6fb] text-[#2C3E50] font-sans">
+  <!-- Main Container: Light Theme (Subtle Gradient from main.css handles bg) -->
+  <div class="min-h-screen text-[#2C3E50] font-sans">
     
     <!-- No Header as requested -->
     <!-- But maybe a back button? User said "pas de header", assuming they want clean look. -->
@@ -12,7 +13,7 @@
       <!-- Left Column: The Totems Gallery (Stacked in Single Card) -->
       <div class="w-full lg:w-5/12 h-auto z-10 flex flex-col order-2 lg:order-1 sticky top-12">
         
-        <div class="bg-white rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] w-full flex flex-col overflow-hidden divide-y divide-stone-100">
+        <div class="bg-white rounded-3xl w-full flex flex-col overflow-hidden divide-y divide-stone-100 shadow-sm border border-stone-100">
             
             <div class="p-6 pb-2 text-center border-b border-stone-50">
                 <h2 class="font-serif text-3xl text-[#2C3E50] font-bold">Totems</h2>
@@ -50,9 +51,14 @@
         
         <div class="mb-4">
            <h1 class="text-4xl md:text-5xl font-serif font-bold text-[#2C3E50] mb-4">Le Grimoire</h1>
-           <p class="text-lg text-stone-500 leading-relaxed border-l-4 border-[#2C3E50] pl-4 py-1">
-             Les secrets de la ville ne se révèlent qu'à ceux qui savent regarder. Répondez aux énigmes du <strong>{{ activeTotem.name }}</strong>.
+           <p class="text-lg text-stone-500 leading-relaxed border-l-4 border-[#2C3E50] pl-4 py-1 italic mb-4">
+             "{{ activeTotem.description }}"
            </p>
+           
+           <!-- Locate Button -->
+           <NuxtLink :to="`/map?focusTotem=${activeTotemId}`" class="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full text-sm font-bold transition-colors">
+              <span>📍 Localiser le Sanctuaire</span>
+           </NuxtLink>
         </div>
 
         <!-- Enigma List -->
@@ -69,6 +75,7 @@
              :enigmaId="enigma.id"
              :question="enigma.question"
              :initiallySolved="store.isUnlocked(enigma.id)"
+             :themeColor="activeTotemColor"
              @unlocked="handleUnlock"
            />
            <div v-if="currentEnigmas.length === 0" key="empty" class="text-center py-12 text-stone-400 italic">
@@ -80,8 +87,8 @@
     </div>
     <!-- Success Modal Overlay -->
     <Transition>
-      <div v-if="showSuccessModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-         <div class="bg-white rounded-3xl p-12 max-w-lg w-full text-center shadow-2xl transform scale-100 animate-[bounce-in_0.5s_ease-out]">
+      <div v-if="showSuccessModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-md">
+         <div class="bg-white p-12 max-w-lg w-full text-center rounded-3xl transform scale-100 animate-[bounce-in_0.5s_ease-out] shadow-2xl">
             <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
             </div>
@@ -115,6 +122,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useGrimoireStore } from '~/stores/grimoire'
+const route = useRoute()
 // Use relative path to avoid alias issues if valid
 import TotemCanvas from '../components/grimoire/TotemCanvas.vue'
 import EnigmaCard from '../components/grimoire/EnigmaCard.vue'
@@ -147,11 +155,31 @@ const availableTotems = computed(() => {
   })
 })
 
+// Define a color palette for totems
+const totemPalette = {
+  1: '#10B981', // Emerald (Nature)
+  2: '#F59E0B', // Amber (Warmth/Light)
+  3: '#3B82F6', // Blue (Water/Sky)
+  4: '#8B5CF6', // Purple (Mystery)
+  5: '#EC4899', // Pink (Love/Charm)
+  6: '#6366F1'  // Indigo
+}
+
+const activeTotemColor = computed(() => {
+  return totemPalette[activeTotemId.value] || '#2C3E50'
+})
+
 const activeTotemId = ref(1)
 
 // Ensure active totem exists in list, default to first if not
 watch(availableTotems, (newVal) => {
-    if (newVal.length > 0 && !newVal.find(t => t.id === activeTotemId.value)) {
+    // Check route query for initial totem
+    const rawQuery = Array.isArray(route.query.totemId) ? route.query.totemId[0] : route.query.totemId
+    const queryTotemId = parseInt(rawQuery)
+
+    if (queryTotemId && newVal.find(t => t.id === queryTotemId)) {
+        activeTotemId.value = queryTotemId
+    } else if (newVal.length > 0 && !newVal.find(t => t.id === activeTotemId.value)) {
         activeTotemId.value = newVal[0].id
     }
 }, { immediate: true })
@@ -163,42 +191,13 @@ const activeTotem = computed(() => {
 // Get enigmas for current totem (Weak comparison for string/number safety)
 const currentEnigmas = computed(() => {
   if (!enigmas.value) return []
-  return enigmas.value.filter(e => (e.totem_id || 1) == activeTotemId.value)
+  return enigmas.value
+    .filter(e => (e.totem_id || 1) == activeTotemId.value)
+    .sort((a, b) => a.id - b.id)
 })
 
-onMounted(async () => {
-  if (tokenCookie.value) {
-    try {
-      const res = await fetch(`${config.public.apiBase}/user/profile`, {
-        headers: { 'Authorization': `Bearer ${tokenCookie.value}` }
-      })
-      if (res.ok) {
-        const user = await res.json()
-        if (user.unlockedFragments) {
-            // Restore state in store
-            if (enigmas.value) {
-               user.unlockedFragments.forEach(pf => {
-                  const enigma = enigmas.value.find(e => e.reward.fragment_id === pf.fragmentId)
-                  if (enigma) {
-                      store.unlockFragment({
-                          id: enigma.id,
-                          totemId: enigma.totem_id || 1, // Store totemId!
-                          url: enigma.reward.fragment_svg_path,
-                          x: enigma.reward.x, 
-                          y: enigma.reward.y,
-                          width: enigma.reward.width,
-                          zIndex: enigma.reward.zIndex
-                      })
-                  }
-               })
-            }
-        }
-      }
-    } catch (e) {
-      console.error('Failed to restore grimoire progress', e)
-    }
-  }
-})
+const showSuccessModal = ref(false)
+const isRestoring = ref(true) // Start as true to block initial triggers
 
 // Check if current totem is completed (Computed for the Modal)
 const isCurrentTotemCompleted = computed(() => {
@@ -213,22 +212,49 @@ const isTotemCompleted = (tId) => {
   return totemEnigmas.every(e => store.isUnlocked(e.id))
 }
 
-const showSuccessModal = ref(false)
+// Watch for completion to show modal
+watch(isCurrentTotemCompleted, (newVal, oldVal) => {
+  // Only show if we are NOT restoring data and it's a fresh completion
+  if (newVal && !oldVal && !isRestoring.value) {
+     showSuccessModal.value = true
+  }
+})
 
-// Watch for completion to show modal (Only once)
-// Watch for completion to show modal (Only once per totem)
-watch(isCurrentTotemCompleted, (newVal) => {
-  if (newVal) {
-    if (process.client) {
-       const key = `totem_completion_seen_v1_${activeTotemId.value}`
-       const hasSeen = localStorage.getItem(key)
-       if (!hasSeen) {
-           showSuccessModal.value = true
-           localStorage.setItem(key, 'true')
-       }
+onMounted(async () => {
+  if (tokenCookie.value) {
+    try {
+      const res = await fetch(`${config.public.apiBase}/user/profile`, {
+        headers: { 'Authorization': `Bearer ${tokenCookie.value}` }
+      })
+      if (res.ok) {
+        const user = await res.json()
+        if (user.unlockedFragments && enigmas.value) {
+             user.unlockedFragments.forEach(pf => {
+                  const enigma = enigmas.value.find(e => e.reward.fragment_id === pf.fragmentId)
+                  if (enigma) {
+                      store.unlockFragment({
+                          id: enigma.id,
+                          totemId: enigma.totem_id || 1, 
+                          url: enigma.reward.fragment_svg_path,
+                          x: enigma.reward.x, 
+                          y: enigma.reward.y,
+                          width: enigma.reward.width,
+                          zIndex: enigma.reward.zIndex
+                      })
+                  }
+             })
+        }
+      }
+    } catch (e) {
+      console.error('Failed to restore grimoire progress', e)
     }
   }
-}, { immediate: true })
+  
+  // Allow modals after restoration is done
+  setTimeout(() => {
+    isRestoring.value = false
+  }, 500)
+})
 
 const closeSuccessModal = () => {
     showSuccessModal.value = false

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, watch, onMounted } from 'vue'
+import MagicCursor from '~/components/shared/MagicCursor.vue'
+import GuardiansOfSilence from '~/components/shared/GuardiansOfSilence.vue'
 
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
@@ -7,10 +9,11 @@ const { calculateProgress } = useGlobalColorization()
 
 // We need user profile and enigmas to calculate totem progress
 // Use useAsyncData to avoid blocking navigation too much, or useFetch with lazy: true
-const { data: user } = useFetch<any>(`${config.public.apiBase}/user/profile`, {
-  headers: { 'Authorization': `Bearer ${tokenCookie.value}` },
+const { data: user, refresh: refreshUser } = useFetch<any>(`${config.public.apiBase}/user/profile`, {
+  headers: computed(() => ({ 'Authorization': `Bearer ${tokenCookie.value}` })),
   lazy: true,
-  server: false // Client side mostly for visual effect updates
+  server: false, // Client side mostly for visual effect updates
+  watch: [tokenCookie]
 })
 
 const { data: enigmas } = useFetch<any[]>(`${config.public.apiBase}/enigmas`, {
@@ -56,6 +59,12 @@ const dynamicColor = computed(() => {
 
 <template>
   <div :style="{ '--theme-dynamic': dynamicColor }">
+
+    <!-- Magic Cursor Overlay (Client Only) -->
+    <ClientOnly>
+      <MagicCursor />
+      <GuardiansOfSilence />
+    </ClientOnly>
     
     <!-- AUTHENTICATED HEADER -->
     <header 
@@ -63,8 +72,8 @@ const dynamicColor = computed(() => {
       class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 px-6 py-4 flex items-center justify-between transition-all"
     >
       <!-- Logo / Home -->
-      <NuxtLink to="/" class="font-serif font-bold text-xl flex items-center gap-2 hover:scale-105 transition-transform text-dynamic">
-        <span>La Ville Lente</span>
+      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-dynamic">
+        <span class="text-2xl font-bold tracking-widest" style="font-family: 'Cinzel', serif;">La Ville Lente</span>
       </NuxtLink>
 
       <!-- Navigation -->
@@ -142,9 +151,7 @@ h1, h2, h3, h4,
 /* Apply to buttons, but avoid specifically destructive ones if possible */
 button:not(.no-color-transition):not(.bg-red-500):not(.text-red-500), 
 .btn-dynamic {
-  /* Only override if it looks like a primary button or generic button */
-  /* We use a specific strategy: override background for buttons that might be 'primary' */
-  /* This can be tricky globally, so we target generic buttons */
+  transition: all 1.5s ease-out;
 }
 
 /* 

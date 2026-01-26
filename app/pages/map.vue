@@ -14,6 +14,8 @@ const isLoading = ref(true)
 const errorMsg = ref('')
 const discoveredPlaces = ref<Place[]>([]) // Reactive state for the sidebar
 const nextPlace = ref<Place | null>(null)
+const { totemMetadata } = useTotems()
+const route = useRoute()
 
 // Placeholder map image
 const MAP_IMAGE_URL = 'https://res.cloudinary.com/dveki8qer/image/upload/v1768829196/Gemini_Generated_Image_2pq9hf2pq9hf2pq9_v1c0fi.png'
@@ -167,6 +169,44 @@ onMounted(async () => {
             .bindPopup(popupContent)
         }
       })
+
+      // Add Totem Pillars
+      Object.entries(totemMetadata).forEach(([id, totem]: [string, any]) => {
+          if (totem.coordinates) {
+              const pillarIcon = L.divIcon({
+                  className: 'totem-pillar-marker',
+                  html: '<div style="font-size: 3rem; transform: translate(-50%, -50%);">🏛️</div>',
+                  iconSize: [0, 0],
+                  iconAnchor: [0, 20] 
+              })
+
+              const marker = L.marker([totem.coordinates.y, totem.coordinates.x], { icon: pillarIcon }).addTo(map)
+              
+              // Popup with Link to Grimoire
+              const popupHtml = `
+                <div class="text-center p-2">
+                   <h3 class="font-bold text-amber-600 mb-1 text-lg">${totem.name}</h3>
+                   <p class="text-xs text-gray-500 mb-3 italic">Découvrez les secrets de ce totem.</p>
+                   <button onclick="window.location.href='/grimoire?totemId=${id}'" class="px-4 py-2 bg-amber-500 text-white rounded-full font-bold text-xs hover:bg-amber-600 shadow-md transition-all">
+                     📖 Consulter le Grimoire
+                   </button>
+                </div>
+              `
+              marker.bindPopup(popupHtml)
+          }
+      })
+
+      // Handle Focus from Query Param
+      const focusTotemId = Array.isArray(route.query.focusTotem) ? route.query.focusTotem[0] : route.query.focusTotem
+      if (focusTotemId && (totemMetadata as any)[focusTotemId]) {
+          const coords = (totemMetadata as any)[focusTotemId].coordinates
+          if (coords) {
+              // Wait for markers to render
+              setTimeout(() => {
+                  map.flyTo([coords.y, coords.x], 1.5, { duration: 2 })
+              }, 500)
+          }
+      }
       
       if (discoveredPlaces.value.length === 0) {
         errorMsg.value = "Aucun lieu découvert pour le moment."
