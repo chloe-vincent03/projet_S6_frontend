@@ -46,21 +46,35 @@
     </form>
     
   </div>
+
+  <!-- Meditative Loader -->
+  <Teleport to="body">
+    <BreathingLoader 
+      v-if="isMeditating" 
+      :duration="4000"
+      :color="themeColor"
+      @complete="onMeditationComplete"
+    />
+  </Teleport>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
+import BreathingLoader from '~/components/shared/BreathingLoader.vue'
 
 const props = defineProps({
   enigmaId: { type: String, required: true },
   question: { type: String, required: true },
-  initiallySolved: { type: Boolean, default: false }
+  initiallySolved: { type: Boolean, default: false },
+  themeColor: { type: String, default: '#2C3E50' }
 })
 
 const emit = defineEmits(['unlocked'])
 
 const answer = ref('')
 const isLoading = ref(false)
+const isMeditating = ref(false)
+const pendingResponse = ref(null) // Stores the API result/error while meditating
 const error = ref('')
 const isSolved = ref(props.initiallySolved)
 
@@ -71,15 +85,18 @@ watch(() => props.initiallySolved, (newVal) => {
 })
 
 const verifyAnswer = async () => {
+  // Start the meditation (visuals)
   isLoading.value = true
+  isMeditating.value = true
   error.value = ''
+  pendingResponse.value = null
 
+  // Start the API call in parallel
   try {
-    // Verify with Backend
     const config = useRuntimeConfig()
-    const token = useCookie('auth_token').value // Helper from Nuxt
+    const token = useCookie('auth_token').value
 
-    const response = await fetch(`${config.public.apiBase}/enigmas/verify`, {
+    const promise = fetch(`${config.public.apiBase}/enigmas/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,30 +108,48 @@ const verifyAnswer = async () => {
       })
     })
 
-    const data = await response.json()
+    // Store the promise result to be processed after meditation
+    pendingResponse.value = await promise.then(res => res.json())
+                           .then(data => ({ success: true, data }))
+                           .catch(err => ({ success: false, err }))
 
-    if (data.success) {
-       isSolved.value = true
-       // Use reward data from API
-       const reward = data.reward
-       
-       const fragmentData = {
-         id: props.enigmaId,
-         url: reward.fragment_svg_path,
-         x: reward.x, 
-         y: reward.y,
-         width: reward.width,
-         zIndex: reward.zIndex
-       }
-       emit('unlocked', fragmentData)
-    } else {
-       error.value = "La réponse n'est pas celle attendue par le totem."
-    }
   } catch (e) {
-    console.error(e)
-    error.value = "Les esprits semblent perturbés (Erreur serveur)."
-  } finally {
-    isLoading.value = false
+    pendingResponse.value = { success: false, err: e }
+  }
+  // We do NOT set isLoading = false here. We wait for onMeditationComplete.
+}
+
+const onMeditationComplete = () => {
+  isMeditating.value = false
+  isLoading.value = false
+
+  // Process the result that (hopefully) arrived during the breath
+  if (pendingResponse.value) {
+      if (pendingResponse.value.success) {
+          const data = pendingResponse.value.data
+          if (data.success) {
+              isSolved.value = true
+              const reward = data.reward
+              const fragmentData = {
+                id: props.enigmaId,
+                url: reward.fragment_svg_path,
+                x: reward.x, 
+                y: reward.y,
+                width: reward.width,
+                zIndex: reward.zIndex
+              }
+              emit('unlocked', fragmentData)
+          } else {
+             error.value = "La réponse n'est pas celle attendue par le totem."
+          }
+      } else {
+          // Network/Server error
+          console.error(pendingResponse.value.err)
+          error.value = "Les esprits semblent perturbés (Erreur serveur)."
+      }
+  } else {
+      // Should technically not happen if request takes < 4s, but fallsafe
+      error.value = "Pas de réponse des esprits..."
   }
 }
 const config = useRuntimeConfig()

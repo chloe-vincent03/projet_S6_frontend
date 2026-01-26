@@ -74,7 +74,7 @@
           <div class="mt-24 mb-12 w-full max-w-4xl mx-auto flex flex-col items-center gap-12 relative z-50">
 
             <!-- NAVIGATION / DASHBOARD -->
-            <div class="p-8 bg-white/60 backdrop-blur rounded-3xl border border-stone-100/50 text-center max-w-4xl w-full">
+            <div class="p-10 glass-panel rounded-[3rem] text-center max-w-4xl w-full">
               
               <!-- Narrative Intro -->
               <div class="mb-10 max-w-2xl mx-auto">
@@ -88,19 +88,19 @@
               <div v-if="tokenCookie" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <!-- Card 1: Map -->
-                <NuxtLink to="/map" class="group relative overflow-hidden bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-stone-100 flex flex-col items-center justify-center gap-4 text-center h-64">
-                   <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                   <h4 class="relative z-10 text-xl font-bold text-[#2C3E50]">La Carte</h4>
-                   <p class="relative z-10 text-stone-500 text-sm">Explorez les lieux et suivez votre progression.</p>
-                   <span class="relative z-10 mt-2 px-4 py-2 bg-[#2C3E50] text-white text-xs font-bold rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">Accéder</span>
+                <NuxtLink to="/map" class="group relative overflow-hidden bg-white p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72">
+                   <div>
+                       <h4 class="text-2xl font-serif font-bold text-[#2C3E50] mb-2">La Carte</h4>
+                       <p class="text-stone-500 font-light">Explorez les lieux et suivez votre progression.</p>
+                   </div>
                 </NuxtLink>
 
                 <!-- Card 2: Grimoire -->
-                <NuxtLink to="/grimoire" class="group relative overflow-hidden bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-stone-100 flex flex-col items-center justify-center gap-4 text-center h-64">
-                   <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                   <h4 class="relative z-10 text-xl font-bold text-[#2C3E50]">Le Grimoire</h4>
-                   <p class="relative z-10 text-stone-500 text-sm">Résolvez les énigmes et trouvez les totems.</p>
-                   <span class="relative z-10 mt-2 px-4 py-2 bg-[#2C3E50] text-white text-xs font-bold rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all">Ouvrir</span>
+                <NuxtLink to="/grimoire" class="group relative overflow-hidden bg-white p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72">
+                   <div>
+                       <h4 class="text-2xl font-serif font-bold text-[#2C3E50] mb-2">Le Grimoire</h4>
+                       <p class="text-stone-500 font-light">Résolvez les énigmes et trouvez les totems.</p>
+                   </div>
                 </NuxtLink>
 
               </div>

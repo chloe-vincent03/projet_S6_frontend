@@ -5,6 +5,9 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     // '@nuxtjs/cloudinary'
   ],
+  css: [
+    '~/assets/css/main.css'
+  ],
   // cloudinary: {
   //   cloudName: 'dveki8qer'
   // },
