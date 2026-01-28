@@ -130,6 +130,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useGrimoireStore } from '~/stores/grimoire'
 
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
@@ -220,6 +221,11 @@ const completedTotems = computed(() => {
 })
 
 const logout = () => {
+  // Clear local state
+  const store = useGrimoireStore()
+  store.resetStore()
+  
+  // Clear auth
   tokenCookie.value = null
   router.push('/login')
 }

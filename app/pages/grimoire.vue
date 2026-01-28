@@ -10,12 +10,14 @@
 
     <div class="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12 items-start justify-center min-h-screen">
       
-      <!-- Left Column: The Totems Gallery (Stacked in Single Card) -->
-      <div class="w-full lg:w-5/12 h-auto z-10 flex flex-col order-2 lg:order-1 sticky top-12">
+      <!-- Left Column: The Totems Gallery -->
+      <!-- Mobile: Horizontal Scroll (Top) -->
+      <!-- Desktop: Stacked Vertical (Left) -->
+      <div class="w-full lg:w-5/12 h-auto z-10 flex flex-col order-1 lg:order-1 lg:sticky lg:top-12">
         
-        <div class="bg-white rounded-3xl w-full flex flex-col overflow-hidden divide-y divide-stone-100 shadow-sm border border-stone-100">
+        <div class="bg-white rounded-3xl w-full flex lg:flex-col flex-row overflow-x-auto lg:overflow-visible divide-x lg:divide-x-0 lg:divide-y divide-stone-100 shadow-sm border border-stone-100 no-scrollbar snap-x snap-mandatory scroll-px-6">
             
-            <div class="p-6 pb-2 text-center border-b border-stone-50">
+            <div class="hidden lg:block p-6 pb-2 text-center border-b border-stone-50">
                 <h2 class="font-serif text-3xl text-[#2C3E50] font-bold">Totems</h2>
             </div>
 
@@ -23,18 +25,19 @@
                 v-for="totem in availableTotems" 
                 :key="totem.id"
                 @click="activeTotemId = totem.id"
-                class="relative p-6 flex flex-col items-center cursor-pointer transition-all duration-300"
+                class="relative p-4 lg:p-6 flex flex-col items-center cursor-pointer transition-all duration-300 min-w-[80vw] md:min-w-[40vw] lg:min-w-0 snap-center shrink-0"
                 :class="activeTotemId === totem.id ? 'bg-stone-50' : 'hover:bg-stone-50/50'"
             >
-                <!-- Active Indicator -->
-                <div v-if="activeTotemId === totem.id" class="absolute left-0 top-0 bottom-0 w-2 bg-[#2C3E50]"></div>
+                <!-- Active Indicator (Left for Desktop, Bottom for Mobile) -->
+                <div v-if="activeTotemId === totem.id" class="absolute left-0 top-0 bottom-0 w-2 bg-[#2C3E50] hidden lg:block"></div>
+                <div v-if="activeTotemId === totem.id" class="absolute bottom-0 left-0 right-0 h-1 bg-[#2C3E50] lg:hidden"></div>
 
-                <div class="w-full relative">
+                <div class="w-full relative flex justify-center">
                     <TotemCanvas 
                         :totemId="totem.id"
                         :completedImage="totem.image"
                         :scale="2" 
-                        heightClass="h-[300px]"
+                        heightClass="h-[200px] lg:h-[300px]"
                         :isCompleted="isTotemCompleted(totem.id)"
                         class="transition-opacity duration-300"
                         :class="activeTotemId === totem.id ? 'opacity-100' : 'opacity-70 grayscale-[0.5]'"
@@ -47,7 +50,8 @@
       </div>
 
       <!-- Right Column: The Enigmas (Scrollable) -->
-      <div class="w-full lg:w-6/12 flex flex-col gap-8 order-1 lg:order-2">
+      <!-- Mobile: Below Totems -->
+      <div class="w-full lg:w-6/12 flex flex-col gap-8 order-2 lg:order-2">
         
         <div class="mb-4">
            <h1 class="text-4xl md:text-5xl font-serif font-bold text-[#2C3E50] mb-4">Le Grimoire</h1>

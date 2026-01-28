@@ -23,6 +23,13 @@ export const useGrimoireStore = defineStore('grimoire', {
          */
         isUnlocked(id) {
             return !!this.unlockedFragments.find(f => f.id === id)
+        },
+
+        /**
+         * Reset the store state (e.g. on logout)
+         */
+        resetStore() {
+            this.unlockedFragments = []
         }
     }
 })
