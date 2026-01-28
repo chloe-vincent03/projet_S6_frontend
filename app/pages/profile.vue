@@ -137,6 +137,14 @@ const tokenCookie = useCookie('auth_token')
 const router = useRouter()
 const { getTotemMetadata } = useTotems()
 
+useHead({
+  title: 'Mon Profil',
+  meta: [
+    { name: 'description', content: 'Votre profil explorateur La Ville Lente. Consultez vos statistiques et gérez votre compte.' }
+  ]
+})
+
+
 // Fetch user profile
 const { data: user, pending, error } = await useFetch<any>(`${config.public.apiBase}/user/profile`, {
   headers: {

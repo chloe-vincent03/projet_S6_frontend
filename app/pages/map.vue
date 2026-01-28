@@ -12,6 +12,16 @@ const router = useRouter()
 const mapContainer = ref<HTMLElement | null>(null)
 const isLoading = ref(true)
 const errorMsg = ref('')
+
+useHead({
+  title: 'La Carte',
+  meta: [
+    { name: 'description', content: 'Explorez la carte interactive de La Ville Lente. Repérez les totems cachés et suivez votre progression dans la ville.' },
+    { property: 'og:title', content: 'La Carte - La Ville Lente' },
+    { property: 'og:description', content: 'Repérez les totems cachés et suivez votre progression dans la ville.' }
+  ]
+})
+
 const discoveredPlaces = ref<Place[]>([]) // Reactive state for the sidebar
 const nextPlace = ref<Place | null>(null)
 const { totemMetadata } = useTotems()
