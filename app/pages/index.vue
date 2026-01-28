@@ -15,8 +15,8 @@
        <!-- HERO SECTION (Full Viewport Height) -->
        <section class="relative w-full h-screen">
          <!-- Title Overlay -->
-         <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none mix-blend-difference">
-            <h1 class="text-5xl md:text-7xl font-serif font-bold text-white tracking-wider text-center px-4">
+         <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+            <h1 class="text-5xl md:text-7xl font-serif font-bold tracking-wider text-center px-4 drop-shadow-md" style="color: white !important;">
                Réenchanter le Monde
             </h1>
          </div>
@@ -72,7 +72,7 @@
           </article>
 
           <!-- MAP / ENIGMA SECTION -->
-          <div class="mt-24 mb-12 w-full max-w-4xl mx-auto flex flex-col items-center gap-12 relative z-50">
+          <div class="mt-24 mb-12 w-full max-w-4xl mx-auto flex flex-col items-center gap-12 relative z-40">
 
             <!-- NAVIGATION / DASHBOARD -->
             <div class="p-10 glass-panel rounded-[3rem] text-center max-w-4xl w-full">

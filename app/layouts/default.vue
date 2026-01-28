@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted, ref } from 'vue'
 import MagicCursor from '~/components/shared/MagicCursor.vue'
 import GuardiansOfSilence from '~/components/shared/GuardiansOfSilence.vue'
 
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
 const { calculateProgress } = useGlobalColorization()
+const isMenuOpen = ref(false)
 
 // We need user profile and enigmas to calculate totem progress
 // Use useAsyncData to avoid blocking navigation too much, or useFetch with lazy: true
@@ -70,15 +71,16 @@ const dynamicColor = computed(() => {
     <!-- AUTHENTICATED HEADER -->
     <header 
       v-if="tokenCookie" 
-      class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50 px-6 py-4 flex items-center justify-between transition-all"
+      class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md shadow-sm border-b border-white/50 px-6 py-4 flex items-center justify-between transition-all"
+      :class="isMenuOpen ? 'bg-white' : 'bg-white/80'"
     >
       <!-- Logo / Home -->
-      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-dynamic">
+      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-dynamic z-50 relative">
         <span class="text-2xl font-bold tracking-widest" style="font-family: 'Cinzel', serif;">La Ville Lente</span>
       </NuxtLink>
 
-      <!-- Navigation -->
-      <nav class="flex items-center gap-6">
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-6">
         <NuxtLink 
           to="/grimoire" 
           class="font-medium text-stone-600 hover:text-stone-900 transition-colors"
@@ -103,7 +105,57 @@ const dynamicColor = computed(() => {
           Mon Profil
         </NuxtLink>
       </nav>
+
+      <!-- Mobile Hamburger Button -->
+      <button 
+        @click="isMenuOpen = !isMenuOpen" 
+        class="md:hidden z-50 relative p-2 text-[#2C3E50] focus:outline-none"
+      >
+        <div class="w-6 h-5 flex flex-col justify-between transition-all duration-300">
+           <span :class="['w-full h-0.5 bg-current transition-all duration-300', isMenuOpen ? 'rotate-45 translate-y-2.5' : '']"></span>
+           <span :class="['w-full h-0.5 bg-current transition-all duration-300', isMenuOpen ? 'opacity-0' : 'opacity-100']"></span>
+           <span :class="['w-full h-0.5 bg-current transition-all duration-300', isMenuOpen ? '-rotate-45 -translate-y-2' : '']"></span>
+        </div>
+      </button>
     </header>
+
+    <!-- Mobile Menu Overlay (Moved outside header to avoid backdrop-filter containing block issues) -->
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-[-10px]"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-[-10px]"
+    >
+      <div v-if="isMenuOpen" class="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-8 md:hidden pt-20">
+          
+          <NuxtLink 
+            to="/grimoire" 
+            @click="isMenuOpen = false"
+            class="text-3xl font-serif text-[#2C3E50] hover:text-[#34495E] transition-colors"
+          >
+            Grimoire
+          </NuxtLink>
+
+          <NuxtLink 
+            to="/map" 
+            @click="isMenuOpen = false"
+            class="text-3xl font-serif text-[#2C3E50] hover:text-[#34495E] transition-colors"
+          >
+            Carte
+          </NuxtLink>
+
+          <NuxtLink 
+            to="/profile" 
+            @click="isMenuOpen = false"
+            class="px-8 py-3 rounded-full border-2 border-[#2C3E50] text-[#2C3E50] font-bold text-xl hover:bg-[#2C3E50] hover:text-white transition-all shadow-md mt-4"
+          >
+            Mon Profil
+          </NuxtLink>
+
+      </div>
+    </Transition>
 
     <!-- Add padding to main content if header is present to avoid overlap -->
     <main :class="{ 'pt-20': tokenCookie }" class="flex-grow min-h-[calc(100vh-80px)]">

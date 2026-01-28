@@ -39,6 +39,9 @@ interface UserProfile {
     placeId: string
     isCompleted: boolean
   }>
+  unlockedFragments?: Array<{
+    fragmentId: string
+  }>
 }
 
 const mapInstance = ref<any>(null) // Store map instance
@@ -87,6 +90,24 @@ onMounted(async () => {
     const placesRes = await fetch(`${config.public.apiBase}/places`)
     if (!placesRes.ok) throw new Error('Impossible de charger les lieux')
     const allPlaces: Place[] = await placesRes.json()
+
+    // 2.5 Fetch Enigmas (for Totem mapping)
+    const enigmasRes = await fetch(`${config.public.apiBase}/enigmas`)
+    let allEnigmas: any[] = []
+    if (enigmasRes.ok) {
+        allEnigmas = await enigmasRes.json()
+    }
+
+    // Determine Discovered Totems (Has at least one fragment)
+    const discoveredTotemIds = new Set<string>()
+    if (user.unlockedFragments && allEnigmas.length > 0) {
+        user.unlockedFragments.forEach(frag => {
+            const enigma = allEnigmas.find(e => e.reward && String(e.reward.fragment_id) === String(frag.fragmentId))
+            if (enigma && enigma.totem_id) {
+                discoveredTotemIds.add(String(enigma.totem_id))
+            }
+        })
+    }
 
     // 3. Filter Discovered Places
     const unlockedIds = user.progress
@@ -172,7 +193,8 @@ onMounted(async () => {
 
       // Add Totem Pillars
       Object.entries(totemMetadata).forEach(([id, totem]: [string, any]) => {
-          if (totem.coordinates) {
+          // Only show if discovered (has at least one fragment)
+          if (discoveredTotemIds.has(String(id)) && totem.coordinates) {
               const pillarIcon = L.divIcon({
                   className: 'totem-pillar-marker',
                   html: '<div style="font-size: 3rem; transform: translate(-50%, -50%);">🏛️</div>',
