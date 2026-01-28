@@ -13,7 +13,8 @@ const { data: user, refresh: refreshUser } = useFetch<any>(`${config.public.apiB
   headers: computed(() => ({ 'Authorization': `Bearer ${tokenCookie.value}` })),
   lazy: true,
   server: false, // Client side mostly for visual effect updates
-  watch: [tokenCookie]
+  watch: [tokenCookie],
+  immediate: computed(() => !!tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined').value
 })
 
 const { data: enigmas } = useFetch<any[]>(`${config.public.apiBase}/enigmas`, {
