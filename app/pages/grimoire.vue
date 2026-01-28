@@ -136,6 +136,16 @@ const store = useGrimoireStore()
 // Use shared totem metadata
 const { totemMetadata } = useTotems()
 
+useHead({
+  title: 'Le Grimoire',
+  meta: [
+    { name: 'description', content: 'Consultez le Grimoire de La Ville Lente. Retrouvez tous les fragments de totems collectés et les histoires dévoilées.' },
+    { property: 'og:title', content: 'Le Grimoire - La Ville Lente' },
+    { property: 'og:description', content: 'Retrouvez tous les fragments de totems collectés et les histoires dévoilées.' }
+  ]
+})
+
+
 // Fetch Enigmas from Backend
 const config = useRuntimeConfig()
 const { data: enigmas } = await useFetch(`${config.public.apiBase}/enigmas`)

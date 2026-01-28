@@ -131,6 +131,16 @@ import { ref, computed, onMounted } from 'vue'
 import EnigmaCard from '~/components/grimoire/EnigmaCard.vue'
 
 const config = useRuntimeConfig()
+
+useHead({
+  title: 'Accueil',
+  meta: [
+    { name: 'description', content: 'Plongez dans l\'expérience immersive de La Ville Lente. Une aventure urbaine mêlant exploration réelle et mystères numériques.' },
+    { property: 'og:title', content: 'Accueil - La Ville Lente' },
+    { property: 'og:description', content: 'Une aventure urbaine mêlant exploration réelle et mystères numériques.' }
+  ]
+})
+
 const tokenCookie = useCookie('auth_token')
 
 const { data: places, pending, error } = await useFetch(`${config.public.apiBase}/places`)
