@@ -295,6 +295,17 @@ onMounted(async () => {
         </div>
 
       </div>
+
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-stone-100 bg-stone-50/50 text-center">
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-stone-400">
+          <NuxtLink to="/mentions-legales" class="hover:text-[#2C3E50]">Mentions</NuxtLink>
+          <NuxtLink to="/cgu" class="hover:text-[#2C3E50]">CGU</NuxtLink>
+          <NuxtLink to="/politique-confidentialite" class="hover:text-[#2C3E50]">Confidentialité</NuxtLink>
+          <NuxtLink to="/contact" class="hover:text-[#2C3E50]">Contact</NuxtLink>
+        </div>
+      </div>
     </aside>
 
     <!-- Map Area (Desktop: Right, Mobile: Top) -->
