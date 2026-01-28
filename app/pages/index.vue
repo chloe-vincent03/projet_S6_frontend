@@ -17,6 +17,7 @@
          <!-- Title Overlay -->
          <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none mix-blend-difference">
             <h1 class="text-5xl md:text-7xl font-serif font-bold text-white tracking-wider text-center px-4">
+               Réenchanter le Monde
             </h1>
          </div>
 

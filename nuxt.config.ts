@@ -1,5 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ssr: false,
+  nitro: {
+    preset: 'static'
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
@@ -13,7 +17,9 @@ export default defineNuxtConfig({
   // },
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:3001/api'
+      // Si NUXT_PUBLIC_API_BASE n'est pas défini, il utilisera l'URL locale
+      // Sur Vercel, tu mettras : https://projet-s6-api.onrender.com
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api'
     }
   },
   devtools: { enabled: true },

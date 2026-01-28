@@ -223,10 +223,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex h-screen w-full bg-[#e9ecf5]"> <!-- Main Flex Container -->
+  <div class="flex flex-col md:flex-row h-[calc(100vh-5rem)] w-full bg-[#e9ecf5]"> <!-- Main Flex Container -->
     
-    <!-- Left Sidebar -->
-    <aside class="w-80 bg-white shadow-xl z-20 flex flex-col border-r border-stone-200">
+    <!-- Left Sidebar (Desktop: Left, Mobile: Bottom) -->
+    <aside class="w-full md:w-80 h-[40vh] md:h-full bg-white shadow-xl z-20 flex flex-col border-t md:border-t-0 md:border-r border-stone-200 order-2 md:order-1">
       <!-- Header / Back -->
       <div class="p-6 border-b border-stone-100 bg-stone-50 relative">
         <h1 class="text-xl font-serif text-[#2C3E50] font-bold">Mes Découvertes</h1>
@@ -275,8 +275,8 @@ onMounted(async () => {
       </div>
     </aside>
 
-    <!-- Map Area (Takes remaining space) -->
-    <div class="flex-1 relative h-full bg-[#e9ecf5]">
+    <!-- Map Area (Desktop: Right, Mobile: Top) -->
+    <div class="w-full md:flex-1 relative h-[60vh] md:h-full bg-[#e9ecf5] order-1 md:order-2">
       
       <!-- Error Overlay in Map Area -->
       <div v-if="errorMsg && !isLoading" class="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-white px-6 py-4 rounded-xl shadow-xl text-center">
