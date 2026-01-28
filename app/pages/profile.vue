@@ -140,7 +140,9 @@ const { getTotemMetadata } = useTotems()
 const { data: user, pending, error } = await useFetch<any>(`${config.public.apiBase}/user/profile`, {
   headers: {
     'Authorization': `Bearer ${tokenCookie.value}`
-  }
+  },
+  immediate: computed(() => !!tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined').value,
+  watch: [tokenCookie]
 })
 
 // Fetch enigmas to determine totem structure

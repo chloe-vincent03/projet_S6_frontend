@@ -148,7 +148,7 @@ const isGrimoireUnlocked = ref(false)
 
 // Check if user has already unlocked this enigma
 const checkGrimoireStatus = async () => {
-    if (tokenCookie.value) {
+    if (tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined') {
         try {
             const res = await fetch(`${config.public.apiBase}/user/profile`, {
                  headers: { 'Authorization': `Bearer ${tokenCookie.value}` }
@@ -176,7 +176,7 @@ const onEnigmaUnlocked = () => {
 const isUnlocked = ref(false)
 
 const checkProgress = async () => {
-  if (tokenCookie.value && firstPlace.value) {
+  if (tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined' && firstPlace.value) {
     try {
       const userRes = await fetch(`${config.public.apiBase}/user/profile`, {
         headers: {
@@ -208,7 +208,7 @@ const handleUnlock = async () => {
     isUnlocked.value = true
     
     // Si connecté, on sauvegarde la progression
-    if (tokenCookie.value && firstPlace.value) {
+    if (tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined' && firstPlace.value) {
       console.log('Attempting to save progress for place:', firstPlace.value._id)
       try {
         const response = await fetch(`${config.public.apiBase}/user/progress`, {
