@@ -33,7 +33,7 @@
         
         <!-- Title Overlay -->
         <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-           <h1 class="text-white font-serif text-5xl md:text-7xl font-bold text-shadow-lg tracking-wider animate-fade-in-up">{{ place.title }}</h1>
+           <h1 class="text-white font-serif text-5xl md:text-7xl font-bold text-shadow-lg tracking-wider animate-fade-in-up" style="color: white !important;">{{ place.title }}</h1>
         </div>
       </div>
 
