@@ -25,7 +25,7 @@
       <!-- Completion Title (Only when done) -->
       <div class="mb-20 text-center transition-all duration-1000 transform px-6 absolute top-1/2 -translate-y-1/2" 
            :class="isCompleted ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-10'">
-         <h1 class="text-white font-serif text-5xl md:text-7xl font-bold text-shadow-lg tracking-wider">{{ title }}</h1>
+         <h1 class="text-white font-serif text-5xl md:text-7xl font-bold text-shadow-lg tracking-wider" style="color: white !important;">{{ title }}</h1>
       </div>
 
       <!-- Slider Control -->

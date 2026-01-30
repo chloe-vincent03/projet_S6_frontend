@@ -15,7 +15,7 @@
       <!-- Desktop: Stacked Vertical (Left) -->
       <div class="w-full lg:w-5/12 h-auto z-10 flex flex-col order-1 lg:order-1 lg:sticky lg:top-12">
         
-        <div class="bg-white rounded-3xl w-full flex lg:flex-col flex-row overflow-x-auto lg:overflow-visible divide-x lg:divide-x-0 lg:divide-y divide-stone-100 shadow-sm border border-stone-100 no-scrollbar snap-x snap-mandatory scroll-px-6">
+        <div class="bg-white rounded-3xl w-full flex lg:flex-col flex-row justify-center lg:justify-start overflow-x-auto lg:overflow-visible divide-x lg:divide-x-0 lg:divide-y divide-stone-100 shadow-sm border border-stone-100 no-scrollbar snap-x snap-mandatory scroll-px-4 lg:scroll-px-0">
             
             <div class="hidden lg:block p-6 pb-2 text-center border-b border-stone-50">
                 <h2 class="font-serif text-3xl text-[#2C3E50] font-bold">Totems</h2>
@@ -25,22 +25,26 @@
                 v-for="totem in availableTotems" 
                 :key="totem.id"
                 @click="activeTotemId = totem.id"
-                class="relative p-4 lg:p-6 flex flex-col items-center cursor-pointer transition-all duration-300 min-w-[80vw] md:min-w-[40vw] lg:min-w-0 snap-center shrink-0"
-                :class="activeTotemId === totem.id ? 'bg-stone-50' : 'hover:bg-stone-50/50'"
+                class="relative p-2 lg:p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-w-[90px] lg:min-w-0 snap-start shrink-0 group"
+                :class="activeTotemId === totem.id ? 'bg-stone-50 lg:bg-stone-50' : 'hover:bg-stone-50/50'"
             >
-                <!-- Active Indicator (Left for Desktop, Bottom for Mobile) -->
+                <!-- Active Indicator (Left for Desktop, Ring for Mobile) -->
                 <div v-if="activeTotemId === totem.id" class="absolute left-0 top-0 bottom-0 w-2 bg-[#2C3E50] hidden lg:block"></div>
-                <div v-if="activeTotemId === totem.id" class="absolute bottom-0 left-0 right-0 h-1 bg-[#2C3E50] lg:hidden"></div>
+                
+                <!-- Mobile Active Ring Background -->
+                <div v-if="activeTotemId === totem.id" class="absolute inset-2 bg-[#2C3E50]/5 rounded-xl lg:hidden"></div>
 
-                <div class="w-full relative flex justify-center">
+                <div class="w-full relative flex flex-col items-center justify-center gap-2">
                     <TotemCanvas 
                         :totemId="totem.id"
                         :completedImage="totem.image"
                         :scale="2" 
-                        heightClass="h-[200px] lg:h-[300px]"
+                        heightClass="h-[60px] lg:h-[300px]"
+                        paddingClass="p-1 lg:p-8"
+                        emptyIconClass="text-2xl lg:text-6xl"
                         :isCompleted="isTotemCompleted(totem.id)"
-                        class="transition-opacity duration-300"
-                        :class="activeTotemId === totem.id ? 'opacity-100' : 'opacity-70 grayscale-[0.5]'"
+                        class="transition-transform duration-300"
+                        :class="activeTotemId === totem.id ? 'scale-110 lg:scale-100 opacity-100' : 'opacity-70 grayscale-[0.5] group-hover:scale-105'"
                     />
                 </div>
             </div>
@@ -61,7 +65,7 @@
            
            <!-- Locate Button -->
            <NuxtLink :to="`/map?focusTotem=${activeTotemId}`" class="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full text-sm font-bold transition-colors">
-              <span>📍 Localiser le Sanctuaire</span>
+              <span>Localiser le Sanctuaire</span>
            </NuxtLink>
         </div>
 
@@ -80,6 +84,7 @@
              :question="enigma.question"
              :initiallySolved="store.isUnlocked(enigma.id)"
              :themeColor="activeTotemColor"
+             :answerProp="enigma.answer"
              @unlocked="handleUnlock"
            />
            <div v-if="currentEnigmas.length === 0" key="empty" class="text-center py-12 text-stone-400 italic">
@@ -104,7 +109,7 @@
             
             <div class="p-4 bg-stone-50 rounded-xl border border-stone-100 mb-8">
                <p class="text-[#2C3E50] font-bold flex items-center justify-center gap-2">
-                 ✨ Le Totem a été ajouté à votre profil
+                 Le Totem a été ajouté à votre profil
                </p>
             </div>
 

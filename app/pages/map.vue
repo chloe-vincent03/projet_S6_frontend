@@ -220,7 +220,7 @@ onMounted(async () => {
                    <h3 class="font-bold text-amber-600 mb-1 text-lg">${totem.name}</h3>
                    <p class="text-xs text-gray-500 mb-3 italic">Découvrez les secrets de ce totem.</p>
                    <button onclick="window.location.href='/grimoire?totemId=${id}'" class="px-4 py-2 bg-amber-500 text-white rounded-full font-bold text-xs hover:bg-amber-600 shadow-md transition-all">
-                     📖 Consulter le Grimoire
+                    Consulter le Grimoire
                    </button>
                 </div>
               `
@@ -267,7 +267,7 @@ onMounted(async () => {
         <!-- NEXT STEP CTA -->
         <div v-if="nextPlace" class="mt-6">
           <NuxtLink :to="`/discovery/${nextPlace._id}`" class="block w-full py-3 px-4 bg-[#2C3E50] text-white text-center rounded-xl font-bold hover:bg-[#34495E] hover:scale-[1.02] transition-all shadow-md">
-            ✨ Continuer l'aventure
+           Continuer l'aventure
           </NuxtLink>
         </div>
       </div>
@@ -288,7 +288,6 @@ onMounted(async () => {
 
         <!-- Empty State -->
         <div v-else-if="discoveredPlaces.length === 0" class="text-center py-10 text-stone-500">
-          <p class="mb-2">👻</p>
           <p class="text-sm">Votre carte est vide...</p>
           <p class="text-xs mt-2">Explorez la ville pour remplir votre carnet !</p>
         </div>

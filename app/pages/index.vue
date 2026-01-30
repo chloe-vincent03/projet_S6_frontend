@@ -41,7 +41,7 @@
          <!-- Instructions / Progress Overlay -->
          <div class="absolute bottom-12 left-0 w-full text-center pointer-events-none z-20 flex flex-col items-center gap-4 transition-opacity duration-500" :class="{ 'opacity-0': isUnlocked }">
             <div class="px-6 py-3 bg-black/40 backdrop-blur-md rounded-full text-white/90 font-medium text-lg shadow-sm border border-white/10">
-               ✨ Coloriez pour découvrir ✨
+               Coloriez pour découvrir
             </div>
             
             <NuxtLink v-if="!tokenCookie" to="/login" class="pointer-events-auto text-white/80 text-sm hover:text-white hover:underline transition-colors font-medium shadow-black drop-shadow-md">
@@ -143,8 +143,8 @@ useHead({
 
 const tokenCookie = useCookie('auth_token')
 
-const { data: places, pending, error } = await useFetch(`${config.public.apiBase}/places`)
-const { data: enigmas } = await useFetch(`${config.public.apiBase}/enigmas`) // Fetch enigmas for homepage
+const { data: places, pending, error } = useFetch(`${config.public.apiBase}/places`, { lazy: true })
+const { data: enigmas } = useFetch(`${config.public.apiBase}/enigmas`, { lazy: true }) // Fetch enigmas for homepage
 
 // Use the first place for the Hero
 const firstPlace = computed(() => places.value?.[0])
@@ -208,9 +208,19 @@ const checkProgress = async () => {
   }
 }
 
+// Watchers to trigger checks when data arrives
+watch(firstPlace, (newVal) => {
+  if (newVal) checkProgress()
+})
+
+watch(firstEnigma, (newVal) => {
+  if (newVal) checkGrimoireStatus()
+})
+
 onMounted(() => {
-  checkProgress()
-  checkGrimoireStatus()
+  // Check immediately in case data is already there (e.g. navigation from another page)
+  if (firstPlace.value) checkProgress()
+  if (firstEnigma.value) checkGrimoireStatus()
 })
 
 const handleUnlock = async () => {

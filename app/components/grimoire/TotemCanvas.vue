@@ -2,7 +2,7 @@
   <div class="relative w-full flex items-center justify-center bg-stone-50/50 rounded-2xl border border-stone-100 overflow-hidden" :class="heightClass">
     
     <!-- Full Totem (Completed State) -->
-    <div v-if="isCompleted" class="w-full h-full p-8 animate-fade-in duration-1000">
+    <div v-if="isCompleted" class="w-full h-full animate-fade-in duration-1000" :class="paddingClass">
        <img 
          :src="completedImage"
          alt="Totem Complet"
@@ -12,7 +12,6 @@
 
     <!-- Empty State (No fragments yet) -->
     <div v-else-if="currentFragments.length === 0" class="text-center opacity-40 select-none pointer-events-none">
-      <div class="text-6xl mb-4 grayscale opacity-50">🔮</div>
       <p class="font-serif text-stone-400">Totem endormi...</p>
     </div>
 
@@ -76,6 +75,14 @@ const props = defineProps({
   heightClass: {
     type: String,
     default: 'h-[600px]'
+  },
+  paddingClass: {
+    type: String,
+    default: 'p-8'
+  },
+  emptyIconClass: {
+    type: String,
+    default: 'text-6xl'
   }
 })
 

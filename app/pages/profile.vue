@@ -23,14 +23,56 @@
       <!-- Profile Info -->
       <div class="px-8 pb-8 -mt-16 relative z-10">
         
-        <!-- Avatar Placeholder -->
-        <div class="w-32 h-32 mx-auto bg-stone-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-[#2C3E50] mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <!-- Avatar Upload -->
+        <div class="relative w-32 h-32 mx-auto mb-6 group cursor-pointer" @click="triggerFileInput">
+          <div class="w-full h-full rounded-full border-4 border-white shadow-md overflow-hidden bg-stone-100 flex items-center justify-center text-[#2C3E50]">
+            <img v-if="user.avatar" :src="user.avatar" alt="Avatar" class="w-full h-full object-cover" />
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          
+          <!-- Edit Overlay -->
+          <div v-if="!isUploading" class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          
+          <!-- Loading Spinner -->
+          <div v-else class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
+             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+
+          <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload" />
         </div>
 
-        <div class="text-center mb-8">
-          <h1 class="text-2xl font-serif font-bold text-[#2C3E50]">{{ user.username || 'Explorateur' }}</h1>
-          <p class="text-stone-500 text-sm">{{ user.email }}</p>
+        <div class="text-center mb-8 relative">
+          <!-- Username -->
+          <div v-if="!isEditing" class="flex items-center justify-center gap-2 group mb-1">
+             <h1 class="text-2xl font-serif font-bold text-[#2C3E50]">{{ user.username || 'Explorateur' }}</h1>
+             <button @click="startEditing" class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+             </button>
+          </div>
+          <div v-else class="flex flex-col items-center gap-2 mb-1">
+             <input ref="usernameInput" v-model="editUsername" type="text" class="text-2xl font-serif font-bold text-[#2C3E50] text-center bg-stone-50 border-b-2 border-[#2C3E50] focus:outline-none w-full max-w-[200px] px-2 py-1" />
+             <div class="flex gap-2 text-sm">
+                <button @click="saveUsername" class="text-green-600 font-bold hover:bg-green-50 px-3 py-1 rounded-full transition-colors" :disabled="isSaving">OK</button>
+                <button @click="cancelEditing" class="text-red-500 font-bold hover:bg-red-50 px-3 py-1 rounded-full transition-colors" :disabled="isSaving">X</button>
+             </div>
+          </div>
+
+          <!-- Email -->
+          <div v-if="!isEditingEmail" class="flex items-center justify-center gap-2 group">
+              <p class="text-stone-500 text-sm">{{ user.email }}</p>
+              <button @click="startEditingEmail" class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+             </button>
+          </div>
+          <div v-else class="flex flex-col items-center gap-2">
+             <input ref="emailInput" v-model="editEmail" type="email" class="text-sm text-stone-600 text-center bg-stone-50 border-b-2 border-stone-300 focus:border-[#2C3E50] focus:outline-none w-full max-w-[250px] px-2 py-1" />
+             <div class="flex gap-2 text-sm">
+                <button @click="saveEmail" class="text-green-600 font-bold hover:bg-green-50 px-3 py-1 rounded-full transition-colors" :disabled="isSaving">OK</button>
+                <button @click="cancelEditingEmail" class="text-red-500 font-bold hover:bg-red-50 px-3 py-1 rounded-full transition-colors" :disabled="isSaving">X</button>
+             </div>
+          </div>
         </div>
 
         <!-- Stats Grid -->
@@ -101,7 +143,6 @@
 
                   <!-- Empty State -->
                   <div v-else class="w-full h-full flex flex-col items-center justify-center text-center p-6 text-stone-400">
-                     <div class="text-4xl mb-2 opacity-30">🔮</div>
                      <p class="italic text-sm">Aucun totem complété pour l'instant.</p>
                   </div>
                </div>
@@ -136,6 +177,147 @@ const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
 const router = useRouter()
 const { getTotemMetadata } = useTotems()
+
+const fileInput = ref<HTMLInputElement | null>(null)
+const isUploading = ref(false)
+
+// Editing Logic
+const isEditing = ref(false)
+const isSaving = ref(false)
+const editUsername = ref('')
+const usernameInput = ref<HTMLInputElement | null>(null)
+
+const startEditing = () => {
+    editUsername.value = user.value.username || ''
+    isEditing.value = true
+    nextTick(() => usernameInput.value?.focus())
+}
+
+const cancelEditing = () => {
+    isEditing.value = false
+    editUsername.value = ''
+}
+
+const isEditingEmail = ref(false)
+const editEmail = ref('')
+const emailInput = ref<HTMLInputElement | null>(null)
+
+const startEditingEmail = () => {
+    editEmail.value = user.value.email || ''
+    isEditingEmail.value = true
+    nextTick(() => emailInput.value?.focus())
+}
+
+const cancelEditingEmail = () => {
+    isEditingEmail.value = false
+    editEmail.value = ''
+}
+
+const saveEmail = async () => {
+    if (!editEmail.value.trim()) return
+    isSaving.value = true
+    
+    try {
+        const res = await fetch(`${config.public.apiBase}/user/profile`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCookie.value}` },
+            body: JSON.stringify({ email: editEmail.value })
+        })
+
+        if (res.ok) {
+            const data = await res.json()
+            if (data.user) user.value = data.user
+            isEditingEmail.value = false
+        } else {
+            alert("Erreur lors de la mise à jour de l'email")
+        }
+    } catch (e) {
+        console.error(e)
+        alert('Erreur réseau')
+    } finally {
+        isSaving.value = false
+    }
+}
+
+const saveUsername = async () => {
+    if (!editUsername.value.trim()) return
+    isSaving.value = true
+    
+    try {
+        const res = await fetch(`${config.public.apiBase}/user/profile`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${tokenCookie.value}`
+            },
+            body: JSON.stringify({ username: editUsername.value })
+        })
+
+        if (res.ok) {
+            const data = await res.json()
+            if (data.user) user.value = data.user
+            isEditing.value = false
+        } else {
+            alert('Erreur lors de la mise à jour')
+        }
+    } catch (e) {
+        console.error(e)
+        alert('Erreur réseau')
+    } finally {
+        isSaving.value = false
+    }
+}
+
+const triggerFileInput = () => {
+  if (isUploading.value) return
+  fileInput.value?.click()
+}
+
+const handleFileUpload = async (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  const formData = new FormData()
+  formData.append('avatar', file)
+  
+  isUploading.value = true
+
+  try {
+    console.log('Starting upload...')
+    const res = await fetch(`${config.public.apiBase}/user/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${tokenCookie.value}`
+      },
+      body: formData
+    })
+
+    console.log('Upload response status:', res.status)
+
+    if (res.ok) {
+      const data = await res.json()
+      console.log('Upload success, data:', data)
+      if (data.user && data.user.avatar) {
+          user.value = data.user
+          // Force a reactivity update if needed (though replacing value should be enough)
+          // triggerRef(user) 
+      } else {
+          console.warn('User updated but no avatar returned', data)
+      }
+    } else {
+      const err = await res.text()
+      console.error('Upload failed:', err)
+      alert(`Erreur d'upload: ${res.status} ${res.statusText}`)
+    }
+  } catch (e) {
+    console.error('Upload error:', e)
+    alert("Erreur lors de l'envoi de l'image")
+  } finally {
+    isUploading.value = false
+    // Reset input so same file can be selected again if needed
+    if (fileInput.value) fileInput.value.value = ''
+  }
+}
 
 useHead({
   title: 'Mon Profil',
