@@ -27,6 +27,7 @@
            <ScratchReveal 
              :inkLayer="firstPlace.inkLayer" 
              :watercolorLayer="firstPlace.watercolorLayer" 
+             :brushSize="100"
              class="w-full h-full"
              @complete="handleUnlock"
            />
