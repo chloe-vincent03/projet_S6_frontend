@@ -8,7 +8,7 @@
     />
 
     <!-- Spotlights Container -->
-    <div v-if="!isCompleted" class="absolute inset-0 z-10 flex items-center justify-center">
+    <div v-if="!isCompleted" class="absolute inset-0 z-30 flex items-center justify-center -translate-y-16 pointer-events-none">
       <div class="relative w-full max-w-lg aspect-square">
         
         <!-- Lights -->
@@ -16,7 +16,7 @@
         <div 
           v-for="(light, index) in lights"
           :key="index"
-          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-all duration-200 flex items-center justify-center"
+          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-all duration-200 flex items-center justify-center pointer-events-auto"
           :class="[
             light.positionClass,
             activeLight === index ? 'bg-yellow-100 shadow-[0_0_50px_20px_rgba(255,255,200,0.8)] scale-110 border-white' : 'bg-black/50 hover:bg-white/10'
@@ -30,11 +30,11 @@
     </div>
 
     <!-- UI Interaction Layer -->
-    <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-20 pointer-events-none">
+    <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-8 pointer-events-none">
       
        <!-- Status Message -->
-       <div class="mb-12 text-center transition-opacity duration-300 pointer-events-auto" v-if="!isCompleted">
-         <h2 class="text-white font-serif text-2xl mb-2 text-shadow-lg">
+       <div class="mb-4 text-center transition-opacity duration-300 pointer-events-auto bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4" v-if="!isCompleted">
+         <h2 class="text-white font-serif text-2xl mb-2 text-shadow-lg font-bold" style="color: white !important;">
            {{ statusMessage }}
          </h2>
          <div class="flex gap-2 justify-center mt-4">
@@ -48,7 +48,7 @@
          </div>
          <button v-if="gameState === 'FAIL' || gameState === 'IDLE'" 
                  @click="startGame"
-                 class="mt-6 px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-colors pointer-events-auto">
+                 class="mt-6 px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-colors pointer-events-auto transform hover:scale-105 shadow-lg">
            {{ gameState === 'FAIL' ? 'Réessayer' : 'Commencer' }}
          </button>
        </div>

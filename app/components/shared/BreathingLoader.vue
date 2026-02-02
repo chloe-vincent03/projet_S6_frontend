@@ -7,21 +7,21 @@
       <!-- Expanding Circle (Breath) -->
       <div 
         class="absolute rounded-full blur-2xl transition-all duration-[4000ms] ease-in-out"
-        :style="{ backgroundColor: `${color}20` }" 
+        :style="{ backgroundColor: '#2C3E5020' }" 
         :class="{ 'w-64 h-64 opacity-100': isInhaling, 'w-16 h-16 opacity-30': !isInhaling }"
       ></div>
 
       <!-- Core Circle -->
       <div 
         class="absolute rounded-full transition-all duration-[4000ms] ease-in-out border"
-        :style="{ backgroundColor: `${color}40`, borderColor: `${color}20` }"
+        :style="{ backgroundColor: '#2C3E5040', borderColor: '#2C3E5020' }"
         :class="{ 'w-48 h-48': isInhaling, 'w-12 h-12': !isInhaling }"
       ></div>
 
       <!-- Guidance Text -->
       <p 
         class="relative z-10 font-serif text-xl font-light tracking-widest transition-opacity duration-1000"
-        :style="{ color: color }"
+        :style="{ color: 'var(--theme-dynamic)' }"
       >
         {{ instruction }}
       </p>
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Progress indication (subtle) -->
-    <div class="mt-8 font-light text-sm tracking-wide animate-pulse" :style="{ color: `${color}80` }">
+    <div class="mt-8 font-light text-sm tracking-wide animate-pulse" :style="{ color: '#2C3E5080' }">
       Laissez le temps au temps...
     </div>
 

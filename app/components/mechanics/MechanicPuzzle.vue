@@ -29,8 +29,8 @@
     <!-- UI Overlay -->
     <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-20 pointer-events-none">
        <!-- Instruction Text -->
-      <div class="mb-8 text-center transition-opacity duration-500 px-6" :class="{ 'opacity-0': isCompleted }">
-        <h2 class="text-white font-serif text-2xl md:text-3xl mb-2 text-shadow-lg drop-shadow-md">
+      <div class="mb-8 text-center transition-opacity duration-500 bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4" :class="{ 'opacity-0': isCompleted }">
+        <h2 class="text-white font-serif text-2xl md:text-3xl mb-2 text-shadow-lg drop-shadow-md" style="color: white !important;">
            Recomposez le souvenir...
         </h2>
         <p class="text-white/80 text-sm max-w-md mx-auto drop-shadow font-medium">

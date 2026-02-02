@@ -71,11 +71,11 @@ const dynamicColor = computed(() => {
     <!-- AUTHENTICATED HEADER -->
     <header 
       v-if="tokenCookie" 
-      class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md shadow-sm border-b border-white/50 px-6 py-4 flex items-center justify-between transition-all"
-      :class="isMenuOpen ? 'bg-white' : 'bg-white/80'"
+      class="fixed top-0 left-0 right-0 z-50 h-20 backdrop-blur-md shadow-sm border-b border-white/20 px-6 py-4 flex items-center justify-between transition-colors duration-1000"
+      :style="{ backgroundColor: 'var(--theme-dynamic)' }"
     >
       <!-- Logo / Home -->
-      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-dynamic z-50 relative">
+      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-white z-50 relative">
         <span class="text-2xl font-bold tracking-widest" style="font-family: 'Cinzel', serif;">La Ville Lente</span>
       </NuxtLink>
 
@@ -83,24 +83,25 @@ const dynamicColor = computed(() => {
       <nav class="hidden md:flex items-center gap-6">
         <NuxtLink 
           to="/grimoire" 
-          class="font-medium text-stone-600 hover:text-stone-900 transition-colors"
-          active-class="!text-stone-900 font-bold"
+          class="font-medium text-white/80 hover:text-white transition-colors"
+          active-class="!text-white font-bold"
         >
           Grimoire
         </NuxtLink>
 
         <NuxtLink 
           to="/map" 
-          class="font-medium text-stone-600 hover:text-stone-900 transition-colors"
-          active-class="!text-stone-900 font-bold"
+          class="font-medium text-white/80 hover:text-white transition-colors"
+          active-class="!text-white font-bold"
         >
           Carte
         </NuxtLink>
 
         <NuxtLink 
           to="/profile" 
-          class="px-4 py-2 rounded-full border border-stone-200 bg-white hover:bg-stone-50 transition-all shadow-sm hover:shadow-md text-sm font-bold text-stone-700"
-          active-class="border-stone-400"
+          class="px-4 py-2 rounded-full border border-white/20 bg-white hover:bg-white/90 transition-all shadow-sm hover:shadow-md text-sm font-bold"
+          :style="{ color: 'var(--theme-dynamic)' }"
+          active-class="border-white"
         >
           Mon Profil
         </NuxtLink>
@@ -109,7 +110,7 @@ const dynamicColor = computed(() => {
       <!-- Mobile Hamburger Button -->
       <button 
         @click="isMenuOpen = !isMenuOpen" 
-        class="md:hidden z-50 relative p-2 text-[#2C3E50] focus:outline-none"
+        class="md:hidden z-50 relative p-2 text-white focus:outline-none"
       >
         <div class="w-6 h-5 flex flex-col justify-between transition-all duration-300">
            <span :class="['w-full h-0.5 bg-current transition-all duration-300', isMenuOpen ? 'rotate-45 translate-y-2.5' : '']"></span>
@@ -163,25 +164,26 @@ const dynamicColor = computed(() => {
     </main>
 
     <!-- FOOTER -->
-    <footer class="w-full py-8 mt-auto bg-white/50 border-t border-stone-100 backdrop-blur-sm">
+    <footer class="w-full py-8 mt-auto border-t border-white/20 backdrop-blur-sm transition-colors duration-1000"
+            :style="{ backgroundColor: 'var(--theme-dynamic)' }">
       <div class="container mx-auto px-6 text-center">
         
         <div class="flex flex-wrap justify-center gap-6 mb-4 text-sm font-medium">
-          <NuxtLink to="/mentions-legales" class="text-stone-500 hover:text-dynamic transition-colors">
+          <NuxtLink to="/mentions-legales" class="text-white/80 hover:text-white transition-colors">
             Mentions Légales
           </NuxtLink>
-          <NuxtLink to="/cgu" class="text-stone-500 hover:text-dynamic transition-colors">
+          <NuxtLink to="/cgu" class="text-white/80 hover:text-white transition-colors">
             CGU
           </NuxtLink>
-          <NuxtLink to="/politique-confidentialite" class="text-stone-500 hover:text-dynamic transition-colors">
+          <NuxtLink to="/politique-confidentialite" class="text-white/80 hover:text-white transition-colors">
             Politique de Confidentialité
           </NuxtLink>
-          <NuxtLink to="/contact" class="text-stone-500 hover:text-dynamic transition-colors">
+          <NuxtLink to="/contact" class="text-white/80 hover:text-white transition-colors">
             Contact
           </NuxtLink>
         </div>
 
-        <p class="text-xs text-stone-400">
+        <p class="text-xs text-white/50">
           © 2026 La Ville Lente. Tous droits réservés.
         </p>
       </div>
@@ -224,8 +226,9 @@ button:not(.no-color-transition):not(.bg-red-500):not(.text-red-500),
 */
 
 /* Force Titles */
-h1, h2, h3, .font-serif {
+h1, h2, h3, h4, h5, h6, .font-serif {
     color: var(--theme-dynamic) !important;
+    font-weight: bold !important;
 }
 
 /* Force Primary Buttons (often bg-[#2C3E50]) */

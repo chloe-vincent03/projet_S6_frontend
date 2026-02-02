@@ -77,7 +77,7 @@ async function onSubmit() {
       })
       tokenCookie.value = loginData.token
       
-      await navigateTo('/map')
+      await navigateTo('/profile')
     } else {
        await navigateTo('/login')
     }
