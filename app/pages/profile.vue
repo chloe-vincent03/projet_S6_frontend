@@ -47,7 +47,7 @@
           <!-- Username -->
           <div v-if="!isEditing" class="flex items-center justify-center gap-2 group mb-1">
              <h1 class="text-2xl font-serif font-bold text-[#2C3E50]">{{ user.username || 'Explorateur' }}</h1>
-             <button @click="startEditing" class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
+             <button @click="startEditing" class="transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
              </button>
           </div>
@@ -62,7 +62,7 @@
           <!-- Email -->
           <div v-if="!isEditingEmail" class="flex items-center justify-center gap-2 group">
               <p class="text-stone-500 text-sm">{{ user.email }}</p>
-              <button @click="startEditingEmail" class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
+              <button @click="startEditingEmail" class="transition-opacity p-1 hover:bg-stone-100 rounded-full text-stone-400 hover:text-[#2C3E50]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
              </button>
           </div>

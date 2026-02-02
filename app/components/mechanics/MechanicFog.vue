@@ -17,14 +17,14 @@
     <!-- UI Overlay -->
     <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-20 pointer-events-none">
        <!-- Instruction Text -->
-      <div class="mb-8 text-center transition-opacity duration-500 px-6" :class="{ 'opacity-0': isCompleted }">
-        <h2 class="text-[#2C3E50] font-serif text-2xl md:text-3xl mb-2 drop-shadow-md">
+      <div class="mb-8 text-center transition-opacity duration-500 bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4" :class="{ 'opacity-0': isCompleted }">
+        <h2 class="text-white font-serif text-2xl md:text-3xl mb-2 drop-shadow-md text-shadow-lg" style="color: white !important;">
            Buée sur la vitre...
         </h2>
-        <p class="text-[#2C3E50]/80 text-sm max-w-md mx-auto font-medium">
+        <p class="text-white/80 text-sm max-w-md mx-auto font-medium drop-shadow">
            Essuyez l'écran pour voir à travers.
         </p>
-        <p class="text-[#2C3E50]/60 text-xs mt-2">{{ Math.round(progress) }}% nettoyé</p>
+        <p class="text-white/60 text-xs mt-2">{{ Math.round(progress) }}% nettoyé</p>
       </div>
 
        <!-- Completion Title -->
@@ -54,7 +54,7 @@ let ctx: CanvasRenderingContext2D | null = null
 
 // Fog Configuration
 const FOG_COLOR = 'rgba(230, 235, 240, 0.95)' // Milky white/blueish fog
-const BRUSH_SIZE = 60
+const BRUSH_SIZE = 120
 const BLUR_AMOUNT = 20
 
 // Resize Observer
@@ -157,7 +157,7 @@ const checkProgress = () => {
       const percent = (clearPixels / checkedPixels) * 100
       progress.value = percent
       
-      if (percent > 60) { // 60% clear = success
+      if (percent > 40) { // 40% clear = success
         complete()
       }
   } catch (e) {

@@ -49,7 +49,7 @@ async function onSubmit() {
       // const userCookie = useCookie('user_id')
       // userCookie.value = data.userId
       
-      await navigateTo('/map') 
+      await navigateTo('/profile') 
     } else {
       throw new Error('Token manquant dans la réponse')
     }

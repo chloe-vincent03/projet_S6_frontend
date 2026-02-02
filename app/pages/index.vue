@@ -90,18 +90,18 @@
               <div v-if="tokenCookie" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <!-- Card 1: Map -->
-                <NuxtLink to="/map" class="group relative overflow-hidden bg-white p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72">
+                <NuxtLink to="/map" class="group relative overflow-hidden p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72" :style="{ backgroundColor: 'var(--theme-dynamic)' }">
                    <div>
-                       <h4 class="text-2xl font-serif font-bold text-[#2C3E50] mb-2">La Carte</h4>
-                       <p class="text-stone-500 font-light">Explorez les lieux et suivez votre progression.</p>
+                       <h4 class="text-2xl font-serif font-bold text-white mb-2" style="color: white !important;">La Carte</h4>
+                       <p class="text-white/80 font-light">Explorez les lieux et suivez votre progression.</p>
                    </div>
                 </NuxtLink>
 
                 <!-- Card 2: Grimoire -->
-                <NuxtLink to="/grimoire" class="group relative overflow-hidden bg-white p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72">
+                <NuxtLink to="/grimoire" class="group relative overflow-hidden p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-6 text-center h-72" :style="{ backgroundColor: 'var(--theme-dynamic)' }">
                    <div>
-                       <h4 class="text-2xl font-serif font-bold text-[#2C3E50] mb-2">Le Grimoire</h4>
-                       <p class="text-stone-500 font-light">Résolvez les énigmes et trouvez les totems.</p>
+                       <h4 class="text-2xl font-serif font-bold text-white mb-2" style="color: white !important;">Le Grimoire</h4>
+                       <p class="text-white/80 font-light">Résolvez les énigmes et trouvez les totems.</p>
                    </div>
                 </NuxtLink>
 

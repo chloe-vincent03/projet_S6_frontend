@@ -17,7 +17,7 @@
     <div class="relative z-20 w-full max-w-md p-8 bg-black/60 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl transition-all duration-500"
          :class="{ 'opacity-0 pointer-events-none': isCompleted }">
       
-      <h2 class="text-white font-serif text-2xl mb-6 text-center text-shadow">Réglage de la fréquence...</h2>
+      <h2 class="text-white font-serif text-2xl mb-6 text-center text-shadow" style="color: white !important;">Réglage de la fréquence...</h2>
       
       <!-- Oscilloscope / Wave Visualizer -->
       <div class="relative w-full h-32 bg-black/80 rounded-lg mb-8 overflow-hidden border border-green-500/30 shadow-[inset_0_0_20px_rgba(0,0,0,1)]">

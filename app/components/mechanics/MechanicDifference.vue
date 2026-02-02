@@ -33,8 +33,9 @@
     </div>
 
     <!-- UI Overlay: Targets -->
-    <div v-if="!isCompleted" class="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/90 to-transparent flex flex-col items-center">
-      <h2 class="text-white font-serif text-xl mb-4 text-shadow">Retrouvez ces détails...</h2>
+    <div v-if="!isCompleted" class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-8 pointer-events-none">
+      <div class="pointer-events-auto bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4 mb-4 flex flex-col items-center">
+      <h2 class="text-white font-serif text-xl mb-4 text-shadow font-bold" style="color: white !important;">Retrouvez ces détails...</h2>
       
       <div class="flex gap-4 md:gap-8">
         <div 
@@ -53,6 +54,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
         </div>
+      </div>
       </div>
     </div>
 
