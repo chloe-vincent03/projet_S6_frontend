@@ -18,7 +18,7 @@
 
     <!-- Success Message (Visible if solved) -->
     <div v-if="isSolved" class="text-center py-2">
-      <p class="text-[#2C3E50] font-serif font-bold text-lg mb-1">{{ answerProp }}</p>
+      <p class="text-[#2C3E50] font-serif font-bold text-lg mb-1">{{ answerProp || answer || 'Énigme Résolue' }}</p>
       <p class="text-stone-500 italic font-serif text-xs opacity-70">"Le fragment s'est révélé..."</p>
     </div>
 
