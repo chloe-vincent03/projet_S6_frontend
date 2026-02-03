@@ -7,7 +7,7 @@
   >
     <!-- Background: The Image (Fully Visible but hidden by overlay) -->
     <img 
-      :src="image" 
+      :src="optimizedImage" 
       class="absolute inset-0 w-full h-full object-cover pointer-events-none transition-all duration-1000"
       :class="{ 'brightness-100': isCompleted, 'brightness-50': !isCompleted }"
     />
@@ -54,6 +54,9 @@ const props = defineProps<{
   title: string
   initialCompleted?: boolean
 }>()
+
+const { optimizeImage } = useImageOptimization()
+const optimizedImage = computed(() => optimizeImage(props.image, 1080))
 
 const emit = defineEmits(['complete'])
 

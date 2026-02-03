@@ -9,7 +9,7 @@
     >
       
       <!-- Base Image (Ghost/Guide - Faint) -->
-      <img :src="image" class="absolute inset-0 w-full h-full object-cover rounded-full opacity-20 pointer-events-none blur-sm" />
+      <img :src="optimizedImage" class="absolute inset-0 w-full h-full object-cover rounded-full opacity-20 pointer-events-none blur-sm" />
 
       <!-- Rings -->
       <div 
@@ -24,7 +24,7 @@
           zIndex: 10 + index
         }"
       >
-        <img :src="image" class="w-full h-full object-cover pointer-events-none select-none" />
+        <img :src="optimizedImage" class="w-full h-full object-cover pointer-events-none select-none" />
       </div>
 
     </div>
@@ -52,13 +52,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const props = defineProps<{
   image: string
   title: string
   initialCompleted?: boolean
 }>()
+
+const { optimizeImage } = useImageOptimization()
+const optimizedImage = computed(() => optimizeImage(props.image, 800)) // 800px enough for this mechanic
 
 const emit = defineEmits(['complete'])
 

@@ -6,7 +6,7 @@
       <h3 class="text-[#2C3E50] font-serif text-xl font-bold tracking-wide">
         Énigme #{{ enigmaId }}
       </h3>
-      <span v-if="isSolved" class="text-green-600 text-xs font-bold uppercase tracking-widest bg-green-50 border border-green-100 px-2 py-1 rounded">
+      <span v-if="isSolved" aria-label="Statut : Énigme résolue" class="text-green-600 text-xs font-bold uppercase tracking-widest bg-green-50 border border-green-100 px-2 py-1 rounded">
         Résolu
       </span>
     </div>
@@ -28,6 +28,7 @@
         v-model="answer" 
         type="text" 
         placeholder="Votre réponse..." 
+        aria-label="Réponse à l'énigme"
         class="w-full bg-stone-50 border border-stone-200 text-[#2C3E50] px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#2C3E50]/20 focus:border-[#2C3E50] outline-none transition-all placeholder-stone-400"
         :disabled="isLoading"
       />
@@ -41,7 +42,7 @@
         <span v-else>Invoquer</span>
       </button>
 
-      <p v-if="error" class="text-red-500 text-xs text-center mt-1">
+      <p v-if="error" role="alert" aria-live="assertive" class="text-red-500 text-xs text-center mt-1">
         {{ error }}
       </p>
 
