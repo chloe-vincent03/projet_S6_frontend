@@ -44,6 +44,20 @@
       <p v-if="error" class="text-red-500 text-xs text-center mt-1">
         {{ error }}
       </p>
+
+      <!-- Hint Section -->
+      <div v-if="hint && !isSolved" class="mt-2 text-center">
+          <button 
+            type="button" 
+            @click="showHint = !showHint"
+            class="text-xs text-stone-400 hover:text-[#2C3E50] underline transition-colors"
+          >
+            {{ showHint ? "Masquer l'indice" : "Besoin d'un indice ?" }}
+          </button>
+          <div v-if="showHint" class="mt-2 p-3 bg-stone-50 rounded-lg text-sm text-stone-500 italic border border-stone-100 animate-fade-in">
+             {{ hint }}
+          </div>
+      </div>
     </form>
     
   </div>
@@ -67,6 +81,7 @@ const props = defineProps({
   enigmaId: { type: String, required: true },
   question: { type: String, required: true },
   answerProp: { type: String, default: '' },
+  hint: { type: String, default: '' },
   initiallySolved: { type: Boolean, default: false },
   themeColor: { type: String, default: '#2C3E50' }
 })
@@ -76,6 +91,7 @@ const emit = defineEmits(['unlocked'])
 const answer = ref('')
 const isLoading = ref(false)
 const isMeditating = ref(false)
+const showHint = ref(false)
 const pendingResponse = ref(null) // Stores the API result/error while meditating
 const error = ref('')
 const isSolved = ref(props.initiallySolved)

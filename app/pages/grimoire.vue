@@ -82,6 +82,7 @@
              :key="enigma.id"
              :enigmaId="enigma.id"
              :question="enigma.question"
+             :hint="enigma.hint"
              :initiallySolved="store.isUnlocked(enigma.id)"
              :themeColor="activeTotemColor"
              :answerProp="enigma.answer"
