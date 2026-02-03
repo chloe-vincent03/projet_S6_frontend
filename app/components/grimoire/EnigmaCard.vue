@@ -18,7 +18,7 @@
 
     <!-- Success Message (Visible if solved) -->
     <div v-if="isSolved" class="text-center py-2">
-      <p class="text-[#2C3E50] font-serif font-bold text-lg mb-1">{{ answerProp || answer || 'Énigme Résolue' }}</p>
+      <p class="text-[#2C3E50] font-serif font-bold text-lg mb-1">{{ displayedAnswer || 'Énigme Résolue' }}</p>
       <p class="text-stone-500 italic font-serif text-xs opacity-70">"Le fragment s'est révélé..."</p>
     </div>
 
@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import BreathingLoader from '~/components/shared/BreathingLoader.vue'
 
 const props = defineProps({
@@ -79,11 +79,30 @@ const isMeditating = ref(false)
 const pendingResponse = ref(null) // Stores the API result/error while meditating
 const error = ref('')
 const isSolved = ref(props.initiallySolved)
+const displayedAnswer = ref(props.answerProp)
+
+// Key for localStorage
+const storageKey = `enigma_answer_${props.enigmaId}`
+
+onMounted(() => {
+  // Check local storage for previously solved answer
+  const savedAnswer = localStorage.getItem(storageKey)
+  if (savedAnswer) {
+    displayedAnswer.value = savedAnswer
+    // Note: We don't force isSolved=true here because initiallySolved prop 
+    // from parent (backend source of truth) should handle the state. 
+    // But if backend says solved but no answer, displayedAnswer will take over.
+  }
+})
 
 watch(() => props.initiallySolved, (newVal) => {
   if (newVal) {
     isSolved.value = true
   }
+})
+
+watch(() => props.answerProp, (newVal) => {
+    if (newVal) displayedAnswer.value = newVal
 })
 
 const verifyAnswer = async () => {
@@ -131,6 +150,11 @@ const onMeditationComplete = () => {
           const data = pendingResponse.value.data
           if (data.success) {
               isSolved.value = true
+              
+              // Save answer to local storage
+              localStorage.setItem(storageKey, answer.value)
+              displayedAnswer.value = answer.value
+
               const reward = data.reward
               const fragmentData = {
                 id: props.enigmaId,
