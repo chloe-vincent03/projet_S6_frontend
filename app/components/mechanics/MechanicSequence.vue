@@ -19,7 +19,7 @@
           :key="index"
           type="button"
           :aria-label="getInfoLabel(index)"
-          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-all duration-200 flex items-center justify-center pointer-events-auto focus:outline-none focus:ring-4 focus:ring-yellow-400"
+          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-[transform,background-color,box-shadow] duration-200 flex items-center justify-center pointer-events-auto focus:outline-none focus:ring-4 focus:ring-yellow-400 will-change-transform"
           :class="[
             light.positionClass,
             activeLight === index ? 'bg-yellow-100 shadow-[0_0_50px_20px_rgba(255,255,200,0.8)] scale-110 border-white' : 'bg-black/50 hover:bg-white/10'

@@ -15,40 +15,48 @@
       <!-- Desktop: Stacked Vertical (Left) -->
       <div class="w-full lg:w-5/12 h-auto z-10 flex flex-col order-1 lg:order-1 lg:sticky lg:top-12">
         
-        <div class="bg-white rounded-3xl w-full flex lg:flex-col flex-row justify-center lg:justify-start overflow-x-auto lg:overflow-visible divide-x lg:divide-x-0 lg:divide-y divide-stone-100 shadow-sm border border-stone-100 no-scrollbar snap-x snap-mandatory scroll-px-4 lg:scroll-px-0">
-            
-            <div class="hidden lg:block p-6 pb-2 text-center border-b border-stone-50">
-                <h2 class="font-serif text-3xl text-[#2C3E50] font-bold">Totems</h2>
-            </div>
-
-            <div 
+        <!-- Mobile Navigation (Simple Row) -->
+        <div class="lg:hidden w-full flex flex-wrap justify-center gap-3">
+             <button 
                 v-for="totem in availableTotems" 
                 :key="totem.id"
                 @click="activeTotemId = totem.id"
-                class="relative p-2 lg:p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-w-[90px] lg:min-w-0 snap-start shrink-0 group"
-                :class="activeTotemId === totem.id ? 'bg-stone-50 lg:bg-stone-50' : 'hover:bg-stone-50/50'"
+                style="color: white !important;"
+                class="px-6 py-2 rounded-full font-serif font-bold text-sm transition-all shadow-sm border"
+                :class="activeTotemId === totem.id ? 'bg-[#2C3E50]' : 'bg-stone-400'"
             >
-                <!-- Active Indicator (Left for Desktop, Ring for Mobile) -->
-                <div v-if="activeTotemId === totem.id" class="absolute left-0 top-0 bottom-0 w-2 bg-[#2C3E50] hidden lg:block"></div>
-                
-                <!-- Mobile Active Ring Background -->
-                <div v-if="activeTotemId === totem.id" class="absolute inset-2 bg-[#2C3E50]/5 rounded-xl lg:hidden"></div>
+                {{ totem.name }}
+            </button>
+        </div>
 
-                <div class="w-full relative flex flex-col items-center justify-center gap-2">
-                    <TotemCanvas 
-                        :totemId="totem.id"
-                        :completedImage="totem.image"
-                        :scale="2" 
-                        heightClass="h-[60px] lg:h-[300px]"
-                        paddingClass="p-1 lg:p-8"
-                        emptyIconClass="text-2xl lg:text-6xl"
-                        :isCompleted="isTotemCompleted(totem.id)"
-                        class="transition-transform duration-300"
-                        :class="activeTotemId === totem.id ? 'scale-110 lg:scale-100 opacity-100' : 'opacity-70 grayscale-[0.5] group-hover:scale-105'"
-                    />
-                </div>
+        <!-- Desktop Navigation (Sidebar) -->
+        <div class="hidden lg:flex bg-white rounded-3xl w-full flex-col divide-y divide-stone-100 shadow-sm border border-stone-100">
+            <div class="p-6 pb-2 text-center border-b border-stone-50">
+                <h2 class="font-serif text-3xl text-[#2C3E50] font-bold">Totems</h2>
             </div>
 
+            <button 
+                v-for="totem in availableTotems" 
+                :key="totem.id"
+                @click="activeTotemId = totem.id"
+                class="relative p-6 flex flex-col items-center justify-center transition-all duration-300 group text-left"
+                :class="activeTotemId === totem.id ? 'bg-stone-50' : 'hover:bg-stone-50/50'"
+            >
+                <!-- Active Indicator -->
+                <div v-if="activeTotemId === totem.id" class="absolute left-0 top-0 bottom-0 w-2 bg-[#2C3E50]"></div>
+
+                <TotemCanvas 
+                    :totemId="totem.id"
+                    :completedImage="totem.image"
+                    :scale="2" 
+                    heightClass="h-[300px]"
+                    paddingClass="p-8"
+                    emptyIconClass="text-6xl"
+                    :isCompleted="isTotemCompleted(totem.id)"
+                    class="transition-transform duration-300"
+                    :class="activeTotemId === totem.id ? 'scale-100 opacity-100' : 'opacity-70 grayscale-[0.5] group-hover:scale-105'"
+                />
+            </button>
         </div>
 
       </div>
@@ -58,6 +66,19 @@
       <div class="w-full lg:w-6/12 flex flex-col gap-8 order-2 lg:order-2">
         
         <div class="mb-4">
+           <!-- Mobile: Show Active Totem Here since we hid it in nav -->
+           <div class="lg:hidden flex justify-center mb-8">
+                <TotemCanvas 
+                    :totemId="activeTotem.id"
+                    :completedImage="activeTotem.image"
+                    :scale="2" 
+                    heightClass="h-[240px]"
+                    paddingClass="p-4"
+                    emptyIconClass="text-4xl"
+                    :isCompleted="isTotemCompleted(activeTotem.id)"
+                />
+           </div>
+
            <h1 class="text-4xl md:text-5xl font-serif font-bold text-[#2C3E50] mb-4">Le Grimoire</h1>
            <p class="text-lg text-stone-500 leading-relaxed border-l-4 border-[#2C3E50] pl-4 py-1 italic mb-4">
              "{{ activeTotem.description }}"
