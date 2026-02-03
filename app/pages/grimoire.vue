@@ -154,8 +154,13 @@ useHead({
 
 // Fetch Enigmas from Backend
 const config = useRuntimeConfig()
-const { data: enigmas } = await useFetch(`${config.public.apiBase}/enigmas`)
 const tokenCookie = useCookie('auth_token')
+
+const { data: enigmas } = await useFetch(`${config.public.apiBase}/enigmas`, {
+    headers: {
+        Authorization: tokenCookie.value ? `Bearer ${tokenCookie.value}` : ''
+    }
+})
 
 // Compute available totems dynamically from enigmas
 const availableTotems = computed(() => {
