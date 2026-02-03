@@ -4,9 +4,11 @@
     <!-- Full Totem (Completed State) -->
     <div v-if="isCompleted" class="w-full h-full animate-fade-in duration-1000" :class="paddingClass">
        <img 
-         :src="completedImage"
+         :src="optimizedCompleted"
          alt="Totem Complet"
          class="w-full h-full object-contain drop-shadow-2xl"
+         loading="lazy"
+         decoding="async"
        />
     </div>
 
@@ -33,12 +35,14 @@
                 }"
               >
                 <img 
-                  :src="fragment.url"
+                  :src="optimizeImage(fragment.url, 500)"
                   class="w-full h-auto"
                   :style="{
                     filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
                   }"
                   alt="Totem Fragment"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
            </TransitionGroup>
@@ -87,6 +91,9 @@ const props = defineProps({
 })
 
 const store = useGrimoireStore()
+
+const { optimizeImage } = useImageOptimization()
+const optimizedCompleted = computed(() => optimizeImage(props.completedImage, 800))
 
 const currentFragments = computed(() => {
   return store.unlockedFragments.filter(f => f.totemId === props.totemId)
