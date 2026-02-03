@@ -4,9 +4,6 @@
   <div class="min-h-screen text-[#2C3E50] font-sans">
     
     <!-- No Header as requested -->
-    <!-- But maybe a back button? User said "pas de header", assuming they want clean look. -->
-    <!-- No Header as requested -->
-    <!-- But maybe a back button? User said "pas de header", assuming they want clean look. -->
 
     <div class="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-12 items-start justify-center min-h-screen">
       
