@@ -3,6 +3,7 @@
     <!-- Background Image -->
     <img 
       :src="image" 
+      alt=""
       class="absolute inset-0 w-full h-full object-cover opacity-40"
       :class="{ 'opacity-100 transition-opacity duration-1000': isCompleted }"
     />
@@ -13,18 +14,22 @@
         
         <!-- Lights -->
         <!-- Positioned in a cross or diamond pattern -->
-        <div 
+        <button
           v-for="(light, index) in lights"
           :key="index"
-          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-all duration-200 flex items-center justify-center pointer-events-auto"
+          type="button"
+          :aria-label="getInfoLabel(index)"
+          class="absolute w-24 h-24 rounded-full border-4 border-white/50 cursor-pointer transition-all duration-200 flex items-center justify-center pointer-events-auto focus:outline-none focus:ring-4 focus:ring-yellow-400"
           :class="[
             light.positionClass,
             activeLight === index ? 'bg-yellow-100 shadow-[0_0_50px_20px_rgba(255,255,200,0.8)] scale-110 border-white' : 'bg-black/50 hover:bg-white/10'
           ]"
           @click="handleInput(index)"
+          @keydown.enter.prevent="handleInput(index)"
+          @keydown.space.prevent="handleInput(index)"
         >
           <div class="w-full h-full bg-white/20 rounded-full blur-md" v-if="activeLight === index"></div>
-        </div>
+        </button>
 
       </div>
     </div>
@@ -33,7 +38,7 @@
     <div class="absolute inset-0 z-20 flex flex-col items-center justify-end pb-8 pointer-events-none">
       
        <!-- Status Message -->
-       <div class="mb-4 text-center transition-opacity duration-300 pointer-events-auto bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4" v-if="!isCompleted">
+       <div class="mb-4 text-center transition-opacity duration-300 pointer-events-auto bg-black/60 backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-xl mx-4" v-if="!isCompleted" aria-live="polite">
          <h2 class="text-white font-serif text-2xl mb-2 text-shadow-lg font-bold" style="color: white !important;">
            {{ statusMessage }}
          </h2>
@@ -175,6 +180,11 @@ onMounted(() => {
     statusMessage.value = 'Prêt à commencer ?'
   }
 })
+
+const getInfoLabel = (index: number) => {
+  const directions = ['Haut', 'Bas', 'Gauche', 'Droite']
+  return `Lumière ${directions[index] || index + 1}`
+}
 </script>
 
 <style scoped>

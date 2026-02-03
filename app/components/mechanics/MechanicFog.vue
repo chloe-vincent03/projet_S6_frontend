@@ -2,7 +2,7 @@
   <div class="relative w-full h-full touch-none select-none overflow-hidden">
     <!-- Background Image (Always visible underneath) -->
     <img 
-      :src="image" 
+      :src="optimizedImage" 
       class="absolute inset-0 w-full h-full object-cover pointer-events-none"
     />
 
@@ -45,6 +45,9 @@ const props = defineProps<{
   initialCompleted?: boolean
 }>()
 
+const { optimizeImage } = useImageOptimization()
+const optimizedImage = computed(() => optimizeImage(props.image, 1080))
+
 const emit = defineEmits(['complete'])
 
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -52,8 +55,14 @@ const isCompleted = ref(false)
 const progress = ref(0)
 let ctx: CanvasRenderingContext2D | null = null
 
+// Optimization: Offscreen small canvas for progress tracking
+let offCanvas: HTMLCanvasElement | null = null
+let offCtx: CanvasRenderingContext2D | null = null
+const PROCESS_RES = 64 // Calculate progress on a 64x64 grid
+
 // Fog Configuration
 const FOG_COLOR = 'rgba(230, 235, 240, 0.95)' // Milky white/blueish fog
+const FOG_COLOR_SOLID = '#E6EBF0' // Solid color for offscreen
 const BRUSH_SIZE = 120
 const BLUR_AMOUNT = 20
 
@@ -65,24 +74,30 @@ const initCanvas = () => {
   ctx = canvas.value.getContext('2d', { willReadFrequently: true })
   if (!ctx) return
 
+  // Init Offscreen
+  offCanvas = document.createElement('canvas')
+  offCanvas.width = PROCESS_RES
+  offCanvas.height = PROCESS_RES
+  offCtx = offCanvas.getContext('2d', { willReadFrequently: true })
+
   const resize = () => {
-    if (!canvas.value || !ctx) return
+    if (!canvas.value || !ctx || !offCtx || !offCanvas) return
     const rect = canvas.value.getBoundingClientRect()
     canvas.value.width = rect.width
     canvas.value.height = rect.height
     
-    // Fill with Fog
+    // Fill Main Canvas with Fog
     ctx.fillStyle = FOG_COLOR
     ctx.fillRect(0, 0, canvas.value.width, canvas.value.height)
-    
-    // Reset composite operation to default for filling
     ctx.globalCompositeOperation = 'source-over'
+
+    // Fill Offscreen Canvas with solid color
+    offCtx.fillStyle = FOG_COLOR_SOLID
+    offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height)
+    offCtx.globalCompositeOperation = 'source-over'
   }
 
   resizeObserver = new ResizeObserver(() => {
-    // We only resize if it's the first time or huge change, 
-    // real-time resize might clear progress which is annoying but acceptable for MVP
-    // For now, simple init
     if (canvas.value && canvas.value.width === 0) resize()
   })
   resizeObserver.observe(canvas.value)
@@ -92,69 +107,54 @@ const initCanvas = () => {
 }
 
 const wipe = (x: number, y: number) => {
-  if (!canvas.value || !ctx || isCompleted.value) return
+  if (!canvas.value || !ctx || !offCtx || isCompleted.value) return
 
-  // We use destination-out to erase the fog
+  // 1. Draw Visuals on Main Canvas
   ctx.globalCompositeOperation = 'destination-out'
   ctx.beginPath()
   ctx.arc(x, y, BRUSH_SIZE, 0, Math.PI * 2)
   ctx.fill()
   
-  // Add some "dripping" or soft edges? 
-  // For now simple circle is fast. Use CSS blur on canvas to soften edges visually?
-  // Or shadowBlur in context
+  // 2. Draw Logic on Offscreen Canvas (Scaled)
+  // Calculate relative position (0.0 to 1.0)
+  const relX = x / canvas.value.width
+  const relY = y / canvas.value.height
+  
+  // Apply to small canvas
+  const offX = relX * PROCESS_RES
+  const offY = relY * PROCESS_RES
+  const offBrush = (BRUSH_SIZE / canvas.value.width) * PROCESS_RES
+
+  offCtx.globalCompositeOperation = 'destination-out'
+  offCtx.beginPath()
+  offCtx.arc(offX, offY, offBrush, 0, Math.PI * 2)
+  offCtx.fill()
   
   checkProgress()
 }
 
-// Optimization: Check progress only every X frames or on mouseup? 
-// Checking every pixel every move is expensive.
-// We can approximate by counting wipe events or just sampling a small grid.
 let throttleCounter = 0
 const checkProgress = () => {
   throttleCounter++
-  if (throttleCounter % 10 !== 0) return // Check every 10 wipes
+  if (throttleCounter % 5 !== 0) return // Check every 5 wipes (more responsive now that it's fast)
 
-  if (!canvas.value || !ctx) return
-  
-  // Create a small offscreen canvas to measure coverage
-  // or sample pixel data from the main canvas (can be slow on large screens)
-  
-  const w = canvas.value.width
-  const h = canvas.value.height
-  
-  // Sample a grid of 20x20 points
-  const itemsX = 20
-  const itemsY = 20
-  let transparentCount = 0
-  
-  // Performance optimization: getImageData is slow.
-  // Instead of full image, we could track "total wiped area" roughly.
-  // But let's try sampling.
+  if (!offCtx || !offCanvas) return
   
   try {
-      // Get the alpha channel of every 10th pixel maybe?
-      // Actually, reading 1x1 pixels is very slow due to multiple readbacks.
-      // Better to read entire small simplified image? 
-      // Let's just assume simple "Strokes count" for smoother UI? 
-      // No, user wants percentage.
-      
-      const imgData = ctx.getImageData(0, 0, w, h)
+      // Read mostly-free operation now (64x64 pixels = 4KB data)
+      const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height)
       const data = imgData.data
-      const totalPixels = data.length / 4
-      const step = 100 // Check every 100th pixel
       let clearPixels = 0
-      let checkedPixels = 0
+      let totalPixels = data.length / 4
 
-      for (let i = 3; i < data.length; i += 4 * step) {
-        checkedPixels++
-        const alpha = data[i]
-        if (alpha !== undefined && alpha < 128) { // Alpha less than 50%
+      // We can scan every pixel of this tiny image instantly
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] < 128) { // Alpha check
           clearPixels++
         }
       }
       
-      const percent = (clearPixels / checkedPixels) * 100
+      const percent = (clearPixels / totalPixels) * 100
       progress.value = percent
       
       if (percent > 40) { // 40% clear = success
@@ -184,7 +184,7 @@ const handleMove = (e: MouseEvent) => {
 }
 
 const handleTouch = (e: TouchEvent) => {
-  e.preventDefault() // Stop scroll
+  e.preventDefault() 
   if (!canvas.value) return
   const rect = canvas.value.getBoundingClientRect()
   const touch = e.touches ? e.touches[0] : null

@@ -5,7 +5,7 @@
     <div class="relative w-full h-full cursor-crosshair" @click="handleImageClick">
       <img 
         ref="mainImage"
-        :src="image" 
+        :src="optimizedImage" 
         class="w-full h-full object-cover opacity-60 transition-all duration-500"
         :class="{ 'opacity-100': isCompleted }"
         @load="initGame"
@@ -44,7 +44,7 @@
           class="relative w-24 h-24 rounded-full border-4 overflow-hidden bg-black transition-all duration-300 bg-no-repeat"
           :class="zone.found ? 'border-green-500 opacity-50 scale-90 grayscale' : 'border-white hover:scale-110 shadow-lg'"
           :style="{ 
-             backgroundImage: `url(${image})`,
+             backgroundImage: `url(${optimizedImage})`,
              backgroundSize: '500%', // 5x zoom
              backgroundPosition: `${zone.x}% ${zone.y}%` 
           }"
@@ -75,6 +75,9 @@ const props = defineProps<{
   title: string
   initialCompleted?: boolean
 }>()
+
+const { optimizeImage } = useImageOptimization()
+const optimizedImage = computed(() => optimizeImage(props.image, 1920)) // Higher res for difference game (~2k)
 
 const emit = defineEmits(['complete'])
 

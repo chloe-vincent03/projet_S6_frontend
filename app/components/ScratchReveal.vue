@@ -2,10 +2,10 @@
   <div ref="containerRef" class="relative w-full h-full overflow-hidden cursor-crosshair touch-none">
     <!-- Ink Layer (Background - B&W if same image) -->
     <img 
-      :src="inkLayer" 
+      :src="optimInk" 
       alt="Background" 
       class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-filter duration-300"
-      :class="{ 'grayscale': inkLayer === watercolorLayer }"
+      :class="{ 'grayscale': optimInk === optimWatercolor }"
     />
 
     <!-- Canvas Layer (Drawing Surface) -->
@@ -24,13 +24,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const props = defineProps({
   inkLayer: { type: String, required: true },
   watercolorLayer: { type: String, required: true },
   brushSize: { type: Number, default: 50 }
 })
+
+// Auto-optimize images
+const { optimizeImage } = useImageOptimization()
+const optimInk = computed(() => optimizeImage(props.inkLayer, 1080))
+const optimWatercolor = computed(() => optimizeImage(props.watercolorLayer, 1080))
 
 const containerRef = ref(null)
 const canvasRef = ref(null)
@@ -40,11 +45,16 @@ let ctx = null
 let watercolorImg = null
 let animationFrameId = null
 
+// Optimization: Offscreen Canvas
+let offCanvas = null
+let offCtx = null
+const PROCESS_RES = 64
+
 // Load the watercolor image
 const loadImages = () => {
   watercolorImg = new Image()
   watercolorImg.crossOrigin = "Anonymous"
-  watercolorImg.src = props.watercolorLayer
+  watercolorImg.src = optimWatercolor.value
   
   watercolorImg.onload = () => {
     isLoaded.value = true
@@ -64,29 +74,44 @@ const initCanvas = () => {
   canvas.height = container.clientHeight
   
   ctx = canvas.getContext('2d', { willReadFrequently: true }) // Optimization
+  
+  // Init offscreen
+  offCanvas = document.createElement('canvas')
+  offCanvas.width = PROCESS_RES
+  offCanvas.height = PROCESS_RES
+  offCtx = offCanvas.getContext('2d', { willReadFrequently: true })
 }
 
 // Draw function
 const draw = (e) => {
-  if (!isLoaded.value || !ctx || !watercolorImg) return
+  if (!isLoaded.value || !ctx || !watercolorImg || !offCtx) return
 
   // Get mouse position relative to canvas
   const rect = canvasRef.value.getBoundingClientRect()
   const x = e.clientX - rect.left
   const y = e.clientY - rect.top
 
-  // Perform Drawing
-  // Strategy: Clip a circle at mouse pos, then draw the aligned image inside it
+  // Perform Drawing on Main Canvas (Visuals)
   ctx.save()
   ctx.beginPath()
   ctx.arc(x, y, props.brushSize, 0, Math.PI * 2)
   ctx.clip()
-  // Draw the full image stretched to canvas size (same as CSS object-cover essentially)
-  // Note: For perfect 'object-cover' matching in canvas, more complex math is needed if aspect ratios differ.
-  // Assuming aspect-video container matches image aspect ratio roughly or acceptable stretch.
   ctx.drawImage(watercolorImg, 0, 0, canvasRef.value.width, canvasRef.value.height)
   ctx.restore()
   
+  // Perform Drawing on Offscreen Canvas (Logic)
+  const relX = x / canvasRef.value.width
+  const relY = y / canvasRef.value.height
+  const offX = relX * PROCESS_RES
+  const offY = relY * PROCESS_RES
+  // Calculate relative brush size
+  const offBrush = (props.brushSize / canvasRef.value.width) * PROCESS_RES
+
+  offCtx.fillStyle = '#000000' // Draw solid color
+  offCtx.beginPath()
+  offCtx.arc(offX, offY, offBrush, 0, Math.PI * 2)
+  offCtx.fill() // We fill (add ink) to represent "scratched area"
+
   throttleProgressCheck()
 }
 
@@ -104,7 +129,7 @@ const handleTouch = (e) => {
 // Progress Detection
 const emit = defineEmits(['progress', 'complete'])
 let lastCheckTime = 0
-const CHECK_INTERVAL = 500 // Check every 500ms msg
+const CHECK_INTERVAL = 200 // Faster check interval now that it's cheap
 
 const throttleProgressCheck = () => {
   const now = Date.now()
@@ -115,36 +140,21 @@ const throttleProgressCheck = () => {
 }
 
 const checkProgress = () => {
-  if (!ctx || !canvasRef.value) return
+  if (!offCtx || !offCanvas) return
   
-  const width = canvasRef.value.width
-  const height = canvasRef.value.height
-  
-  // Optimization: Read small grid or use random sampling instead of full image data if performance is bad.
-  // For modern devices, full HD read is okay-ish every 500ms, but let's be careful.
-  // We will sample 1 pixel every 10 to speed it up significantly.
-  
-  // Actually, getImageData is the slow part. We must grab the 'drawn' area usage.
-  // To keep it performant, allow Main Thread to breathe.
-  
-  const imageData = ctx.getImageData(0, 0, width, height)
+  // Read small canvas
+  const imageData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height)
   const data = imageData.data
   let coloredPixels = 0
-  const totalPixels = data.length / 4 // RGBA = 4 bytes
+  const totalPixels = data.length / 4 
   
-  // Simple check: Alpha > 0 means drawn.
-  // Step by 32 (skip lots of pixels) for speed approx
-  const step = 32 
-  let sampledPixels = 0
-  
-  for (let i = 3; i < data.length; i += 4 * step) {
-     sampledPixels++
+  for (let i = 3; i < data.length; i += 4) {
      if (data[i] > 0) {
         coloredPixels++
      }
   }
   
-  const progress = Math.round((coloredPixels / sampledPixels) * 100)
+  const progress = Math.round((coloredPixels / totalPixels) * 100)
   
   emit('progress', progress)
   
