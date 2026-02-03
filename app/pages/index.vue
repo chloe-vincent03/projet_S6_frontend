@@ -203,7 +203,7 @@ const checkProgress = async () => {
         const isDiscovered = user.progress?.some(p => p.placeId === firstPlace.value._id && p.isCompleted)
         
         if (isDiscovered) {
-          console.log('Place already discovered, auto-unlocking.')
+
           isUnlocked.value = true
         }
       }
@@ -234,7 +234,7 @@ const handleUnlock = async () => {
     
     // Si connecté, on sauvegarde la progression
     if (tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined' && firstPlace.value) {
-      console.log('Attempting to save progress for place:', firstPlace.value._id)
+
       try {
         const response = await fetch(`${config.public.apiBase}/user/progress`, {
           method: 'POST',
@@ -246,7 +246,7 @@ const handleUnlock = async () => {
         })
 
         if (response.ok) {
-           console.log('Progress saved successfully!')
+
            // Optional: You could use a toast library here if available, for now console + simple alert if critical
         } else {
            console.error('Failed to save progress:', await response.text())
@@ -255,7 +255,7 @@ const handleUnlock = async () => {
         console.error('Erreur sauvegarde progression', err)
       }
     } else {
-        console.warn('User not logged in, progress will not be saved permanently.')
+
     }
   }
 }

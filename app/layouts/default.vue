@@ -191,7 +191,6 @@ const dynamicColor = computed(() => {
   </div>
 </template>
 
-<style>
 /* Global Transition for Theme Colors */
 :root {
   --theme-dynamic: #2C3E50; /* Default Fallback */
@@ -203,36 +202,19 @@ h1, h2, h3, h4,
   transition: color 1.5s ease-out;
 }
 
-/* Apply to buttons, but avoid specifically destructive ones if possible */
+/* Apply to buttons */
 button:not(.no-color-transition):not(.bg-red-500):not(.text-red-500), 
 .btn-dynamic {
   transition: all 1.5s ease-out;
 }
 
-/* 
-   Specific override for elements that usually use the dark blue 
-   We target arbitrary classes that likely use the specific dark blue hex #2C3E50
-   or we force common elements.
-*/
-
-/* Target headers explicitly inside components if needed, globally set above */
-
-/* Target common button styles used in the app */
-/* Example: 'bg-[#2C3E50]' is used often. We can try to override it globally if it's a class? 
-   No, cannot override utility class easily without !important or specific target.
-   
-   Better strategy: Target specific semantic elements or classes you want to change.
-   User asked "Titles and Buttons".
-*/
-
-/* Force Titles */
+/* Force Titles and Serif Fonts */
 h1, h2, h3, h4, h5, h6, .font-serif {
     color: var(--theme-dynamic) !important;
     font-weight: bold !important;
 }
 
 /* Force Primary Buttons (often bg-[#2C3E50]) */
-/* We target elements with that specific background class if possible, or just all generic buttons */
 button.bg-\[\#2C3E50\], 
 a.bg-\[\#2C3E50\],
 .bg-\[\#2C3E50\] {
@@ -250,4 +232,3 @@ a.bg-\[\#2C3E50\],
 .hover\:text-dynamic:hover {
     color: var(--theme-dynamic) !important;
 }
-</style>
