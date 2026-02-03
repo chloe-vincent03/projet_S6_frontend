@@ -34,9 +34,11 @@
          </div>
          <img 
            v-else
-           :src="firstPlace.watercolorLayer" 
+           :src="optimizeImage(firstPlace.watercolorLayer, 1200)" 
            alt="Révélé"
            class="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000 ease-in-out"
+           fetchpriority="high"
+           decoding="async"
          />
          
          <!-- Instructions / Progress Overlay -->
@@ -130,6 +132,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import EnigmaCard from '~/components/grimoire/EnigmaCard.vue'
+
+const { optimizeImage } = useImageOptimization()
 
 const config = useRuntimeConfig()
 
