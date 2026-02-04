@@ -2,22 +2,23 @@
 import { computed, watch, onMounted, ref } from 'vue'
 import MagicCursor from '~/components/shared/MagicCursor.vue'
 import GuardiansOfSilence from '~/components/shared/GuardiansOfSilence.vue'
+import { useUserStore } from '~/stores/user'
 
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
 const { calculateProgress } = useGlobalColorization()
 const isMenuOpen = ref(false)
 
-// We need user profile and enigmas to calculate totem progress
-// Use useAsyncData to avoid blocking navigation too much, or useFetch with lazy: true
-const { data: user, refresh: refreshUser } = useFetch<any>(`${config.public.apiBase}/user/profile`, {
-  headers: computed(() => ({ 'Authorization': `Bearer ${tokenCookie.value}` })),
-  lazy: true,
-  server: false, // Client side mostly for visual effect updates
-  watch: [tokenCookie],
-  immediate: computed(() => !!tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined').value
+const userStore = useUserStore()
+
+// Initialize user data (client-side mostly)
+onMounted(() => {
+    if (tokenCookie.value && !userStore.user) {
+        userStore.fetchUser()
+    }
 })
 
+// We still need enigmas to calculate the total ratio
 const { data: enigmas } = useFetch<any[]>(`${config.public.apiBase}/enigmas`, {
     lazy: true,
     server: false
@@ -25,8 +26,8 @@ const { data: enigmas } = useFetch<any[]>(`${config.public.apiBase}/enigmas`, {
 
 const progressRatio = computed(() => {
     // Default to 0 (Start of game) until data is loaded
-    if (!user.value || !enigmas.value) return 0 
-    return calculateProgress(user.value, enigmas.value)
+    if (!userStore.user || !enigmas.value) return 0 
+    return calculateProgress(userStore.user, enigmas.value)
 })
 
 // Interpolate between two colors
@@ -75,7 +76,7 @@ const dynamicColor = computed(() => {
       :style="{ backgroundColor: 'var(--theme-dynamic)' }"
     >
       <!-- Logo / Home -->
-      <NuxtLink to="/" class="flex items-center gap-2 hover:scale-105 transition-transform text-white z-50 relative">
+      <NuxtLink to="/" class="flex items-center hover:scale-105 transition-transform text-white z-50 relative">
         <span class="text-2xl font-bold tracking-widest" style="font-family: 'Cinzel', serif;">La Ville Lente</span>
       </NuxtLink>
 
@@ -191,6 +192,7 @@ const dynamicColor = computed(() => {
   </div>
 </template>
 
+<style>
 /* Global Transition for Theme Colors */
 :root {
   --theme-dynamic: #2C3E50; /* Default Fallback */
@@ -232,3 +234,4 @@ a.bg-\[\#2C3E50\],
 .hover\:text-dynamic:hover {
     color: var(--theme-dynamic) !important;
 }
+</style>

@@ -150,12 +150,14 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useGrimoireStore } from '~/stores/grimoire'
+import { useUserStore } from '~/stores/user'
 const route = useRoute()
 // Use relative path to avoid alias issues if valid
 import TotemCanvas from '../components/grimoire/TotemCanvas.vue'
 import EnigmaCard from '../components/grimoire/EnigmaCard.vue'
 
 const store = useGrimoireStore()
+const userStore = useUserStore()
 
 // Use shared totem metadata
 const { totemMetadata } = useTotems()
@@ -265,31 +267,31 @@ watch(isCurrentTotemCompleted, (newVal, oldVal) => {
 
 onMounted(async () => {
   if (tokenCookie.value) {
-    try {
-      const res = await fetch(`${config.public.apiBase}/user/profile`, {
-        headers: { 'Authorization': `Bearer ${tokenCookie.value}` }
-      })
-      if (res.ok) {
-        const user = await res.json()
-        if (user.unlockedFragments && enigmas.value) {
-             user.unlockedFragments.forEach(pf => {
-                  const enigma = enigmas.value.find(e => e.reward.fragment_id === pf.fragmentId)
-                  if (enigma) {
-                      store.unlockFragment({
-                          id: enigma.id,
-                          totemId: enigma.totem_id || 1, 
-                          url: enigma.reward.fragment_svg_path,
-                          x: enigma.reward.x, 
-                          y: enigma.reward.y,
-                          width: enigma.reward.width,
-                          zIndex: enigma.reward.zIndex
-                      })
-                  }
-             })
-        }
-      }
-    } catch (e) {
-      console.error('Failed to restore grimoire progress', e)
+    // Ensure user data is loaded in the global store
+    if (!userStore.user) {
+        await userStore.fetchUser()
+    }
+    
+    // Restore grimoire state from userStore
+    if (userStore.unlockedFragments && enigmas.value) {
+            userStore.unlockedFragments.forEach(pf => {
+                const enigma = enigmas.value.find(e => {
+                    // Match by fragmentId (more robust) or loose ID check
+                    return e.reward && String(e.reward.fragment_id) === String(pf.fragmentId)
+                })
+                
+                if (enigma) {
+                    store.unlockFragment({
+                        id: enigma.id,
+                        totemId: enigma.totem_id || 1, 
+                        url: enigma.reward?.fragment_svg_path,
+                        x: enigma.reward?.x, 
+                        y: enigma.reward?.y,
+                        width: enigma.reward?.width,
+                        zIndex: enigma.reward?.zIndex
+                    })
+                }
+            })
     }
   }
   
@@ -308,13 +310,25 @@ const handleUnlock = (fragment) => {
   // Actually EnigmaCard doesn't know about totemId unless we pass it.
   // We can lookup enigma by fragment.id (which is enigma.id)
   const enigma = enigmas.value.find(e => e.id === fragment.id)
+  
+  // 1. Update Grimoire Store (for UI)
   if (enigma) {
       store.unlockFragment({
           ...fragment,
           totemId: enigma.totem_id || 1
       })
+      
+      // 2. Update User Store (for Global Theme)
+      // The fragment object has 'id' which is the enigma/fragment ID usually
+      // But verifyAnswer returns data that might have fragment_id
+      // For now, assume enigma.reward.fragment_id matches what we want to save
+      if(enigma.reward && enigma.reward.fragment_id) {
+          userStore.addUnlockedFragment(enigma.reward.fragment_id)
+      }
   } else {
       store.unlockFragment(fragment)
+      // Fallback
+      if(fragment.id) userStore.addUnlockedFragment(fragment.id)
   }
 }
 </script>
