@@ -347,9 +347,8 @@ const { data: enigmas } = await useFetch<any[]>(`${config.public.apiBase}/enigma
 
 // Computed Stats
 const unlockedCount = computed(() => {
-  if (!user.value || !user.value.progress && !user.value.unlockedFragments) return 0
-  // Handle both progress arrays (old) and unlockedFragments (new) if needed or just use unlockedFragments
-  return user.value.unlockedFragments ? user.value.unlockedFragments.length : 0
+  if (!user.value || !user.value.progress) return 0
+  return user.value.progress.filter((p: any) => p.isCompleted).length
 })
 
 // Fetch all places to get count
