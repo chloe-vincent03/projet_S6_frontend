@@ -11,7 +11,7 @@
     <div v-else class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-stone-100">
       
       <!-- Header with pattern/color -->
-      <div class="h-32 bg-[#2C3E50] relative overflow-hidden">
+      <div class="h-32 relative overflow-hidden" :style="{ backgroundColor: 'var(--theme-dynamic)' }">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
         
         <!-- Back Button -->
@@ -170,16 +170,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useGrimoireStore } from '~/stores/grimoire'
+import { useUserStore } from '~/stores/user'
 
 const config = useRuntimeConfig()
 const tokenCookie = useCookie('auth_token')
 const router = useRouter()
 const { getTotemMetadata } = useTotems()
+const userStore = useUserStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const isUploading = ref(false)
+
+// Init User
+onMounted(() => {
+    if (tokenCookie.value) {
+        userStore.fetchUser()
+    }
+})
+
+// Use store user
+// We can use a computed to access the store state safely
+const user = computed(() => userStore.user || {})
+const pending = computed(() => userStore.loading)
+const error = computed(() => userStore.error)
 
 // Editing Logic
 const isEditing = ref(false)
@@ -226,7 +241,7 @@ const saveEmail = async () => {
 
         if (res.ok) {
             const data = await res.json()
-            if (data.user) user.value = data.user
+            if (data.user) userStore.setUser(data.user)
             isEditingEmail.value = false
         } else {
             alert("Erreur lors de la mise à jour de l'email")
@@ -255,7 +270,7 @@ const saveUsername = async () => {
 
         if (res.ok) {
             const data = await res.json()
-            if (data.user) user.value = data.user
+            if (data.user) userStore.setUser(data.user)
             isEditing.value = false
         } else {
             alert('Erreur lors de la mise à jour')
@@ -298,7 +313,7 @@ const handleFileUpload = async (event: Event) => {
       const data = await res.json()
       console.log('Upload success, data:', data)
       if (data.user && data.user.avatar) {
-          user.value = data.user
+          userStore.setUser(data.user)
           // Force a reactivity update if needed (though replacing value should be enough)
           // triggerRef(user) 
       } else {
@@ -327,22 +342,14 @@ useHead({
 })
 
 
-// Fetch user profile
-const { data: user, pending, error } = await useFetch<any>(`${config.public.apiBase}/user/profile`, {
-  headers: {
-    'Authorization': `Bearer ${tokenCookie.value}`
-  },
-  immediate: computed(() => !!tokenCookie.value && tokenCookie.value !== 'null' && tokenCookie.value !== 'undefined').value,
-  watch: [tokenCookie]
-})
-
 // Fetch enigmas to determine totem structure
 const { data: enigmas } = await useFetch<any[]>(`${config.public.apiBase}/enigmas`)
 
 // Computed Stats
 const unlockedCount = computed(() => {
-  if (!user.value || !user.value.progress) return 0
-  return user.value.progress.filter((p: any) => p.isCompleted).length
+  if (!user.value || !user.value.progress && !user.value.unlockedFragments) return 0
+  // Handle both progress arrays (old) and unlockedFragments (new) if needed or just use unlockedFragments
+  return user.value.unlockedFragments ? user.value.unlockedFragments.length : 0
 })
 
 // Fetch all places to get count
@@ -414,9 +421,8 @@ const logout = () => {
   // Clear local state
   const store = useGrimoireStore()
   store.resetStore()
+  userStore.logout()
   
-  // Clear auth
-  tokenCookie.value = null
   router.push('/login')
 }
 </script>

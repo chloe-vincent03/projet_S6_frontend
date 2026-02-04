@@ -123,18 +123,14 @@ watch(() => props.answerProp, (newVal) => {
 })
 
 const verifyAnswer = async () => {
-  // Start the meditation (visuals)
   isLoading.value = true
-  isMeditating.value = true
   error.value = ''
   pendingResponse.value = null
 
-  // Start the API call in parallel
   try {
-    const config = useRuntimeConfig()
     const token = useCookie('auth_token').value
 
-    const promise = fetch(`${config.public.apiBase}/enigmas/verify`, {
+    const res = await fetch(`${config.public.apiBase}/enigmas/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -146,15 +142,24 @@ const verifyAnswer = async () => {
       })
     })
 
-    // Store the promise result to be processed after meditation
-    pendingResponse.value = await promise.then(res => res.json())
-                           .then(data => ({ success: true, data }))
-                           .catch(err => ({ success: false, err }))
+    const data = await res.json()
+
+    if (res.ok && data.success) {
+         // Success! Queue the result and start breathing
+         pendingResponse.value = { success: true, data }
+         isMeditating.value = true
+         // isLoading remains true until meditation completes
+    } else {
+         // Failure - No breathing
+         isLoading.value = false
+         error.value = "La réponse n'est pas celle attendue par le totem."
+    }
 
   } catch (e) {
-    pendingResponse.value = { success: false, err: e }
+    isLoading.value = false
+    console.error(e)
+    error.value = "Les esprits semblent perturbés (Erreur serveur)."
   }
-  // We do NOT set isLoading = false here. We wait for onMeditationComplete.
 }
 
 const onMeditationComplete = () => {
