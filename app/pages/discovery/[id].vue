@@ -58,9 +58,16 @@
             {{ place.description }}
           </p>
 
-          <NuxtLink to="/map" class="inline-flex items-center gap-2 px-8 py-4 bg-[#2C3E50] text-white rounded-full font-bold shadow-lg hover:bg-[#34495E] hover:scale-105 transition-all">
-            <span>Retour à la Carte</span>
-          </NuxtLink>
+          <div class="flex flex-col md:flex-row gap-4 justify-center">
+             <NuxtLink to="/map" class="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[#2C3E50] text-[#2C3E50] rounded-full font-bold shadow-sm hover:bg-stone-50 hover:scale-105 transition-all">
+                <span>Retour à la Carte</span>
+             </NuxtLink>
+
+             <NuxtLink v-if="nextPlace" :to="`/discovery/${nextPlace._id}`" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#2C3E50] text-white rounded-full font-bold shadow-lg hover:bg-[#34495E] hover:scale-105 transition-all">
+                <span>Chapitre Suivant</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+             </NuxtLink>
+          </div>
        </div>
     </section>
 
@@ -150,6 +157,14 @@ const completeDiscovery = async () => {
      }
   }
 }
+
+// Fetch all places to find the next one
+const { data: allPlaces } = await useFetch<any[]>(`${config.public.apiBase}/places`)
+
+const nextPlace = computed(() => {
+  if (!place.value || !allPlaces.value) return null
+  return allPlaces.value.find(p => p.order === place.value.order + 1)
+})
 
 const scrollToContent = () => {
   document.getElementById('details')?.scrollIntoView({ behavior: 'smooth' })
